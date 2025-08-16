@@ -30,11 +30,15 @@ static void Win32_InitOpenGL(HWND Window)
 	HGLRC _OpenGLRC = wglCreateContext(_WindowDC);
 	if (wglMakeCurrent(_WindowDC, _OpenGLRC))
 	{
-		
+		OutputDebugString("Got it\n");
+		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		SwapBuffers(_WindowDC);
 	}
 	else
 	{
 		// Handle error
+		OutputDebugString("Not got it\n");
 	}
 	ReleaseDC(Window, _WindowDC);
 };
@@ -100,6 +104,7 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 		if (_WindowHandle)
 		{
 			OutputDebugStringA("Got our window handle !\n");
+			Win32_InitOpenGL(_WindowHandle);
 
 			g_Running = true;
 
@@ -128,6 +133,5 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 		// LOGGING
 	}
 
-	Win32_InitOpenGL(0);
 	return (0);
 }
