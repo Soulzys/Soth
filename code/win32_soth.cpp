@@ -1,8 +1,18 @@
 #include <windows.h>
 #include <gl/gl.h>
+#include <stdint.h>
+
+typedef uint8_t  uint8  ;
+typedef uint16_t uint16 ;
+typedef uint32_t uint32 ;
+typedef uint64_t uint64 ;
+
+static bool g_Running;
 
 static void Win32_InitOpenGL(HWND Window)
 {
+	if (!Window)
+		return;
 	HDC _WindowDC = GetDC(Window);
 
 	PIXELFORMATDESCRIPTOR _DesiredPixelFormat = {};
@@ -20,6 +30,7 @@ static void Win32_InitOpenGL(HWND Window)
 	HGLRC _OpenGLRC = wglCreateContext(_WindowDC);
 	if (wglMakeCurrent(_WindowDC, _OpenGLRC))
 	{
+		
 	}
 	else
 	{
@@ -28,10 +39,95 @@ static void Win32_InitOpenGL(HWND Window)
 	ReleaseDC(Window, _WindowDC);
 };
 
-int WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
+LRESULT CALLBACK Win32_WindowCallback(HWND Window, UINT Message, WPARAM WParam, LPARAM LParam)
 {
-	MessageBox(0, "This is my new game", "Soth", MB_OK);
+	LRESULT _Result = 0;
 
-	Win32_InitOpenGL();
+	switch (Message)
+	{
+		case WM_CLOSE: 
+		case WM_DESTROY:
+		{
+			g_Running = false;
+		} break;
+
+		case WM_KEYDOWN:
+		{
+			uint32 _VKCode = (uint32)WParam;
+
+			if (_VKCode == VK_ESCAPE)
+			{
+				g_Running = false;
+			}
+
+		} break;
+
+		default:
+		{
+			_Result = DefWindowProc(Window, Message, WParam, LParam);
+		} break;
+	}
+
+	return _Result;
+}
+
+int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, int CmdShow)
+{
+	WNDCLASS _WindowClass      = {}                                 ;
+	_WindowClass.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW ;
+	_WindowClass.lpfnWndProc   = Win32_WindowCallback               ;
+	_WindowClass.hInstance     = Instance                           ;
+	_WindowClass.lpszClassName = "Soth"                             ;
+
+	if (RegisterClass(&_WindowClass))
+	{
+		HWND _WindowHandle = CreateWindowEx
+		(
+			0                                ,
+			_WindowClass.lpszClassName       , 
+			"Soth"                           ,
+			WS_OVERLAPPEDWINDOW | WS_VISIBLE , 
+			CW_USEDEFAULT                    , 
+			CW_USEDEFAULT                    , 
+			CW_USEDEFAULT                    , 
+			CW_USEDEFAULT                    , 
+			0                                ,
+			0                                ,
+			Instance                         , 
+			0
+		);
+
+		if (_WindowHandle)
+		{
+			OutputDebugStringA("Got our window handle !\n");
+
+			g_Running = true;
+
+			while (g_Running)
+			{
+				MSG _Message;
+				while (PeekMessage(&_Message, 0, 0, 0, PM_REMOVE))
+				{
+					if (_Message.message == WM_QUIT)
+					{
+						g_Running = false;
+					}
+
+					TranslateMessage(&_Message);
+					DispatchMessage(&_Message);
+				}
+			}
+		}
+		else
+		{
+			// LOGGING
+		}
+	}
+	else
+	{
+		// LOGGING
+	}
+
+	Win32_InitOpenGL(0);
 	return (0);
 }
