@@ -9,6 +9,41 @@ typedef uint64_t uint64 ;
 
 static bool g_Running;
 
+
+#define WGL_CHOOSE_PIXEL_FORMAT_ARB(name) BOOL WINAPI name(HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormat, UINT* nNumFormats)
+typedef WGL_CHOOSE_PIXEL_FORMAT_ARB(wgl_choose_pixel_format_arb);
+WGL_CHOOSE_PIXEL_FORMAT_ARB(wglChoosePixelFormatArbStub)
+{
+	return(0);
+}
+static wgl_choose_pixel_format_arb* wglChoosePixelFormatARB_ = wglChoosePixelFormatArbStub;
+#define wglChoosePixelFormatARB wglChoosePixelFormatARB_;
+
+
+typedef BOOL (WINAPI* PFNWGLCHOOSEPIXELFORMATARBPROC) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
+
+
+PFNWGLCHOOSEPIXELFORMATARBPROC toto;
+
+
+
+
+
+
+static void Win32_LoadOpenGLFunctions()
+{
+	//wglChoosePixelFormatARB = wglGetProcAddress("wglChoosePixelFormatARB");
+	toto = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
+	if (!toto)
+	{
+		OutputDebugString("\n\nWe've loaded the OpenGL 4.0 function !\n\n");
+	}
+	else
+	{
+		OutputDebugString("\n\nWe've failed loading the OpenGL 4.0 function... :(\n\n");
+	}
+}
+
 static void Win32_InitOpenGL(HWND Window)
 {
 	if (!Window)
@@ -30,6 +65,9 @@ static void Win32_InitOpenGL(HWND Window)
 	HGLRC _OpenGLRC = wglCreateContext(_WindowDC);
 	if (wglMakeCurrent(_WindowDC, _OpenGLRC))
 	{
+
+		Win32_LoadOpenGLFunctions();
+
 		OutputDebugString("Got it\n");
 		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
