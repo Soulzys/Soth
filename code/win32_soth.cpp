@@ -46,62 +46,10 @@ PFNWGLCHOOSEPIXELFORMATARBPROC toto;
 	}
 }*/
 
-/*static void Win32_InitOpenGL(HWND Window)
-{
-	if (!Window)
-		return;
-	HDC _WindowDC = GetDC(Window);
-
-	PIXELFORMATDESCRIPTOR _DesiredPixelFormat = {};
-	_DesiredPixelFormat.nSize = sizeof(_DesiredPixelFormat);
-	_DesiredPixelFormat.nVersion = 1;
-	_DesiredPixelFormat.dwFlags = PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW | PFD_DOUBLEBUFFER;
-	_DesiredPixelFormat.cColorBits = 32;
-	_DesiredPixelFormat.cAlphaBits = 8;
-
-	int _SuggestedPixelFormatIndex = ChoosePixelFormat(_WindowDC, &_DesiredPixelFormat);
-	PIXELFORMATDESCRIPTOR _SuggestedPixelFormat = {};
-	DescribePixelFormat(_WindowDC, _SuggestedPixelFormatIndex, sizeof(_DesiredPixelFormat), &_DesiredPixelFormat);
-	SetPixelFormat(_WindowDC, _SuggestedPixelFormatIndex, &_SuggestedPixelFormat);
-
-	HGLRC _OpenGLRC = wglCreateContext(_WindowDC);
-	if (wglMakeCurrent(_WindowDC, _OpenGLRC))
-	{
-
-		Win32_LoadOpenGLFunctions();
-
-		OutputDebugString("Got it\n");
-		glClearColor(1.0f, 0.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		SwapBuffers(_WindowDC);
-	}
-	else
-	{
-		// Handle error
-		OutputDebugString("Not got it\n");
-	}
-	ReleaseDC(Window, _WindowDC);
-};*/
-
-static bool Win32_InitOpenGL_2(HINSTANCE Instance, WNDCLASS* Window)
+// TOTHINK: returning WindowHandle via the function's return value rather than via a out parameter ? 
+static bool Win32_InitOpenGL_2(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle)
 {
 	if (!Window) return false;
-
-	//HWND _WindowHandle = CreateWindowEx
-	//(
-	//	0,
-	//	_WindowClass.lpszClassName,
-	//	"Soth",
-	//	WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-	//	CW_USEDEFAULT,
-	//	CW_USEDEFAULT,
-	//	CW_USEDEFAULT,
-	//	CW_USEDEFAULT,
-	//	0,
-	//	0,
-	//	Instance,
-	//	0
-	//);
 
 	HWND _SacrificialWindow = CreateWindowEx
 	(
@@ -157,7 +105,7 @@ static bool Win32_InitOpenGL_2(HINSTANCE Instance, WNDCLASS* Window)
 
 
 					// The real window
-					HWND _WindowHandle = CreateWindowEx
+					WindowHandle = CreateWindowEx
 					(
 						0,
 						Window->lpszClassName,
@@ -172,7 +120,7 @@ static bool Win32_InitOpenGL_2(HINSTANCE Instance, WNDCLASS* Window)
 						Instance,
 						0
 					);
-					HDC _DeviceContext = GetDC(_WindowHandle);
+					HDC _DeviceContext = GetDC(WindowHandle);
 
 					int _PixelAttribs[] =
 					{
@@ -219,11 +167,7 @@ static bool Win32_InitOpenGL_2(HINSTANCE Instance, WNDCLASS* Window)
 							if (wglMakeCurrent(_DeviceContext, _RenderingContext))
 							{
 								// TODO: load OpenGL functions
-								SetWindowText(_WindowHandle, (LPCSTR)glGetString(GL_VERSION));
-
-								glClearColor(0.129f, 0.586f, 0.949f, 1.0f); // rgb(33,150,243)
-								glClear(GL_COLOR_BUFFER_BIT);
-								SwapBuffers(_DeviceContext);
+								SetWindowText(WindowHandle, (LPCSTR)glGetString(GL_VERSION));
 							}
 							else
 							{
@@ -312,36 +256,10 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 
 	if (RegisterClass(&_WindowClass))
 	{
-		if (Win32_InitOpenGL_2(Instance, &_WindowClass))
-		//{
-		//	OutputDebugString("\n\nSuccess !!!!\n\n");
-		//}
-		//else
-		//{
-		//	return(0);
-		//}
-
-		//HWND _WindowHandle = CreateWindowEx
-		//(
-		//	0                                ,
-		//	_WindowClass.lpszClassName       , 
-		//	"Soth"                           ,
-		//	WS_OVERLAPPEDWINDOW | WS_VISIBLE , 
-		//	CW_USEDEFAULT                    , 
-		//	CW_USEDEFAULT                    , 
-		//	CW_USEDEFAULT                    , 
-		//	CW_USEDEFAULT                    , 
-		//	0                                ,
-		//	0                                ,
-		//	Instance                         , 
-		//	0
-		//);
-
-		//if (_WindowHandle)
+		HWND _WindowHandle = nullptr;
+		if (Win32_InitOpenGL_2(Instance, &_WindowClass, _WindowHandle))
 		{
-			OutputDebugStringA("Got our window handle !\n");
-			//Win32_InitOpenGL(_WindowHandle);
-
+			HDC _DC = GetDC(_WindowHandle);
 			g_Running = true;
 
 			while (g_Running)
@@ -354,8 +272,13 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 						g_Running = false;
 					}
 
+
+					glClearColor(0.129f, 0.586f, 0.949f, 1.0f); // rgb(33,150,243)
+					glClear(GL_COLOR_BUFFER_BIT);
+					SwapBuffers(_DC);
+
 					TranslateMessage(&_Message);
-					DispatchMessage(&_Message);
+					DispatchMessage(&_Message);					
 				}
 			}
 		}
