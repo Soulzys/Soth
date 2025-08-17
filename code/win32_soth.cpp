@@ -84,11 +84,12 @@ static bool Win32_LoadOpenGLFunctions()
 	return true;
 }
 
-// TOTHINK: returning WindowHandle via the function's return value rather than via a out parameter ? 
-static bool Win32_InitOpenGL_2(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle)
+// >TOTHINK: returning WindowHandle via the function's return value rather than via a out parameter ? 
+static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle)
 {
 	if (!Window) return false;
 
+	// >NOTE: read about the necessity of the sacrificial objects (window, context...) : https://mariuszbartosik.com/opengl-4-x-initialization-in-windows-without-a-framework/
 	HWND _SacrificialWindow = CreateWindowEx
 	(
 		0                    , 
@@ -173,7 +174,7 @@ static bool Win32_InitOpenGL_2(HINSTANCE Instance, WNDCLASS* Window, HWND& Windo
 							SetPixelFormat(_DeviceContext, _PixelFormatID, &_PFD);
 
 							// Requesting OpenGL 4.0
-							// TOTHINK: perhaps cover v3.3 as a backup ?
+							// >TOTHINK: perhaps cover v3.3 as a backup ?
 							int _ContextAttribs[] =
 							{
 								WGL_CONTEXT_MAJOR_VERSION_ARB , 4 ,
@@ -288,7 +289,7 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 	if (RegisterClass(&_WindowClass))
 	{
 		HWND _WindowHandle = nullptr;
-		if (Win32_InitOpenGL_2(Instance, &_WindowClass, _WindowHandle))
+		if (Win32_InitOpenGL(Instance, &_WindowClass, _WindowHandle))
 		{
 			HDC _DC = GetDC(_WindowHandle);
 			g_Running = true;
@@ -304,7 +305,7 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 					}
 
 
-					glClearColor(0.129f, 0.586f, 0.949f, 1.0f); // rgb(33,150,243)
+					glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT);
 					SwapBuffers(_DC);
 
