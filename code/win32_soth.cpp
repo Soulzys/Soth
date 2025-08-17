@@ -1,5 +1,7 @@
 #include <windows.h>
 #include <gl/gl.h>
+#include "../include/glext.h"
+#include "../include/wglext.h"
 #include <stdint.h>
 
 typedef uint8_t  uint8  ;
@@ -30,7 +32,7 @@ PFNWGLCHOOSEPIXELFORMATARBPROC toto;
 
 
 
-static void Win32_LoadOpenGLFunctions()
+/*static void Win32_LoadOpenGLFunctions()
 {
 	//wglChoosePixelFormatARB = wglGetProcAddress("wglChoosePixelFormatARB");
 	toto = (PFNWGLCHOOSEPIXELFORMATARBPROC)wglGetProcAddress("wglChoosePixelFormatARB");
@@ -42,9 +44,9 @@ static void Win32_LoadOpenGLFunctions()
 	{
 		OutputDebugString("\n\nWe've failed loading the OpenGL 4.0 function... :(\n\n");
 	}
-}
+}*/
 
-static void Win32_InitOpenGL(HWND Window)
+/*static void Win32_InitOpenGL(HWND Window)
 {
 	if (!Window)
 		return;
@@ -79,7 +81,194 @@ static void Win32_InitOpenGL(HWND Window)
 		OutputDebugString("Not got it\n");
 	}
 	ReleaseDC(Window, _WindowDC);
-};
+};*/
+
+static bool Win32_InitOpenGL_2(HINSTANCE Instance, WNDCLASS* Window)
+{
+	if (!Window) return false;
+
+	//HWND _WindowHandle = CreateWindowEx
+	//(
+	//	0,
+	//	_WindowClass.lpszClassName,
+	//	"Soth",
+	//	WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+	//	CW_USEDEFAULT,
+	//	CW_USEDEFAULT,
+	//	CW_USEDEFAULT,
+	//	CW_USEDEFAULT,
+	//	0,
+	//	0,
+	//	Instance,
+	//	0
+	//);
+
+	HWND _SacrificialWindow = CreateWindowEx
+	(
+		0, 
+		"Core",
+		"Sacrificial Window", 
+		WS_OVERLAPPEDWINDOW,
+		CW_USEDEFAULT,
+		CW_USEDEFAULT, 
+		CW_USEDEFAULT, 
+		CW_USEDEFAULT, 
+		nullptr, 
+		nullptr, 
+		Instance, 
+		nullptr
+	);
+
+	HDC _SacrificialDC = GetDC(_SacrificialWindow); // Handle to Device Context
+	PIXELFORMATDESCRIPTOR _SacrificialPFD = {};
+	_SacrificialPFD.nSize = sizeof(_SacrificialPFD);
+	_SacrificialPFD.nVersion = 1;
+	_SacrificialPFD.dwFlags = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER;
+	_SacrificialPFD.iPixelType = PFD_TYPE_RGBA;
+	_SacrificialPFD.cColorBits = 32;
+	_SacrificialPFD.cAlphaBits = 8;
+	_SacrificialPFD.cDepthBits = 24;
+
+	int _SacrificialPFDID = ChoosePixelFormat(_SacrificialDC, &_SacrificialPFD);
+	if (_SacrificialPFDID != 0)
+	{
+		if (SetPixelFormat(_SacrificialDC, _SacrificialPFDID, &_SacrificialPFD))
+		{
+			HGLRC _SacrificialRC = wglCreateContext(_SacrificialDC); // Handle to OpenGL Rendering Context
+			if (_SacrificialRC != 0)
+			{
+				if (wglMakeCurrent(_SacrificialDC, _SacrificialRC))
+				{
+					PFNWGLCHOOSEPIXELFORMATARBPROC wglChoosePixelFormatARB_test = nullptr;
+					wglChoosePixelFormatARB_test = reinterpret_cast<PFNWGLCHOOSEPIXELFORMATARBPROC>(wglGetProcAddress("wglChoosePixelFormatARB"));
+					if (!wglChoosePixelFormatARB_test)
+					{
+						OutputDebugString("\nUtterly failed to load function :(\n\n");
+						return false;
+					}
+
+					PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB_test = nullptr;
+					wglCreateContextAttribsARB_test = reinterpret_cast<PFNWGLCREATECONTEXTATTRIBSARBPROC>(wglGetProcAddress("wglCreateContextAttribsARB"));
+					if (!wglCreateContextAttribsARB_test)
+					{
+						OutputDebugString("\nUtterly failed to load function :(\n\n");
+						return false;
+					}
+
+
+					// The real window
+					HWND _WindowHandle = CreateWindowEx
+					(
+						0,
+						Window->lpszClassName,
+						"Soth",
+						WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+						CW_USEDEFAULT,
+						CW_USEDEFAULT,
+						CW_USEDEFAULT,
+						CW_USEDEFAULT,
+						0,
+						0,
+						Instance,
+						0
+					);
+					HDC _DeviceContext = GetDC(_WindowHandle);
+
+					int _PixelAttribs[] =
+					{
+						WGL_DRAW_TO_WINDOW_ARB , GL_TRUE                   , 
+						WGL_SUPPORT_OPENGL_ARB , GL_TRUE                   , 
+						WGL_DOUBLE_BUFFER_ARB  , GL_TRUE                   , 
+						WGL_PIXEL_TYPE_ARB     , WGL_TYPE_RGBA_ARB         , 
+						WGL_ACCELERATION_ARB   , WGL_FULL_ACCELERATION_ARB , 
+						WGL_COLOR_BITS_ARB     , 32                        , 
+						WGL_ALPHA_BITS_ARB     , 8                         , 
+						WGL_DEPTH_BITS_ARB     , 24                        ,
+						WGL_STENCIL_BITS_ARB   , 8                         , 
+						WGL_SAMPLE_BUFFERS_ARB , GL_TRUE                   , 
+						WGL_SAMPLES_ARB        , 4                         , 
+						0
+					};
+
+					int _PixelFormatID;
+					UINT _NumFormats;
+					if (wglChoosePixelFormatARB_test(_DeviceContext, _PixelAttribs, nullptr, 1, &_PixelFormatID, &_NumFormats))
+					{
+						if (_NumFormats == 0) return false;
+
+						PIXELFORMATDESCRIPTOR _PFD = {};
+						DescribePixelFormat(_DeviceContext, _PixelFormatID, sizeof(_PFD), &_PFD);
+						SetPixelFormat(_DeviceContext, _PixelFormatID, &_PFD);
+
+						// Requesting OpenGL 4.0
+						int _ContextAttribs[] =
+						{
+							WGL_CONTEXT_MAJOR_VERSION_ARB , 4 , 
+							WGL_CONTEXT_MINOR_VERSION_ARB , 0 , 
+							0 // Null terminate the array
+						};
+
+						HGLRC _RenderingContext = wglCreateContextAttribsARB_test(_DeviceContext, 0, _ContextAttribs);
+						if (_RenderingContext)
+						{
+							wglMakeCurrent(nullptr, nullptr);
+							wglDeleteContext(_SacrificialRC);
+							ReleaseDC(_SacrificialWindow, _SacrificialDC);
+							DestroyWindow(_SacrificialWindow);
+
+							if (wglMakeCurrent(_DeviceContext, _RenderingContext))
+							{
+								// TODO: load OpenGL functions
+								SetWindowText(_WindowHandle, (LPCSTR)glGetString(GL_VERSION));
+
+								glClearColor(0.129f, 0.586f, 0.949f, 1.0f); // rgb(33,150,243)
+								glClear(GL_COLOR_BUFFER_BIT);
+								SwapBuffers(_DeviceContext);
+							}
+							else
+							{
+								// LOGGING
+								return false;
+							}
+						}
+						else
+						{
+							// LOGGING
+							return false;
+						}
+					}
+					else
+					{
+						// LOGGING
+						return false;
+					}
+				}
+				else
+				{
+					// LOGGING
+					return false;
+				}
+			}
+			else
+			{
+				// LOGGING
+				return false;
+			}
+		}
+		else
+		{
+			// LOGGING
+			return false;
+		}
+	}
+	else
+	{
+		// LOGING
+		return false;
+	}
+
+	return true;
+}
 
 LRESULT CALLBACK Win32_WindowCallback(HWND Window, UINT Message, WPARAM WParam, LPARAM LParam)
 {
@@ -123,26 +312,35 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 
 	if (RegisterClass(&_WindowClass))
 	{
-		HWND _WindowHandle = CreateWindowEx
-		(
-			0                                ,
-			_WindowClass.lpszClassName       , 
-			"Soth"                           ,
-			WS_OVERLAPPEDWINDOW | WS_VISIBLE , 
-			CW_USEDEFAULT                    , 
-			CW_USEDEFAULT                    , 
-			CW_USEDEFAULT                    , 
-			CW_USEDEFAULT                    , 
-			0                                ,
-			0                                ,
-			Instance                         , 
-			0
-		);
+		if (Win32_InitOpenGL_2(Instance, &_WindowClass))
+		//{
+		//	OutputDebugString("\n\nSuccess !!!!\n\n");
+		//}
+		//else
+		//{
+		//	return(0);
+		//}
 
-		if (_WindowHandle)
+		//HWND _WindowHandle = CreateWindowEx
+		//(
+		//	0                                ,
+		//	_WindowClass.lpszClassName       , 
+		//	"Soth"                           ,
+		//	WS_OVERLAPPEDWINDOW | WS_VISIBLE , 
+		//	CW_USEDEFAULT                    , 
+		//	CW_USEDEFAULT                    , 
+		//	CW_USEDEFAULT                    , 
+		//	CW_USEDEFAULT                    , 
+		//	0                                ,
+		//	0                                ,
+		//	Instance                         , 
+		//	0
+		//);
+
+		//if (_WindowHandle)
 		{
 			OutputDebugStringA("Got our window handle !\n");
-			Win32_InitOpenGL(_WindowHandle);
+			//Win32_InitOpenGL(_WindowHandle);
 
 			g_Running = true;
 
