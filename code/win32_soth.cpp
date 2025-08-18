@@ -2,6 +2,12 @@
 #include <gl/gl.h>
 #include <stdint.h>
 
+/* TODO
+
+	- Complete the Win32_ReadFile function in order to read shader files
+ 
+*/
+
 typedef uint8_t  uint8  ;
 typedef uint16_t uint16 ;
 typedef uint32_t uint32 ;
@@ -81,6 +87,28 @@ static GL_GET_SHADERIV                glGetShaderiv_              ;
 static GL_GET_SHADER_INFO_LOG         glGetShaderInfoLog_         ;
 static GL_ATTACH_SHADER               glAttachShader_             ;
 static GL_DELETE_SHADER               glDeleteShader_             ;
+
+
+
+
+// Utilitary structs
+//
+struct ReadFileResult
+{
+	uint32 ContentSize ;
+	void*  Content     ;
+};
+
+
+// Utilitary functions
+//
+static ReadFileResult Win32_ReadFile(const char* Filename)
+{
+	ReadFileResult _Result = {};
+	
+	return _Result;
+}
+
 
 
 static const char* vertexShaderSource = "#version 330 core\n"
