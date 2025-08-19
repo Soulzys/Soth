@@ -90,6 +90,12 @@ static GL_DELETE_SHADER               glDeleteShader_             ;
 
 
 
+#if BUILD_ASSERT
+#define ASSERT(Expression) if (!(Expression)) {*(int*)0 = 0;}
+#else
+#define ASSERT(Expression)
+#endif
+
 
 // Utilitary structs
 //
@@ -99,18 +105,73 @@ struct ReadFileResult
 	void*  Content     ;
 };
 
+static uint32 Util_SafeTruncate_uint64(uint64 Value)
+{
+	ASSERT(Value <= 0xFFFFFFFFF);
+	uint32 _Result = (uint32)Value;
+	return _Result;
+}
+
+static BOOL Util_FreeFileMemory(void* Memory)
+{
+	if (Memory)
+	{
+		VirtualFree(Memory, 0, MEM_RELEASE);
+		Memory = nullptr;
+		return 1;
+	}
+	return 0;
+}
+
 
 // Utilitary functions
 //
 static ReadFileResult Win32_ReadFile(const char* Filename)
 {
 	ReadFileResult _Result = {};
+
+	HANDLE _FileHandle = CreateFile(Filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0);
+	if (_FileHandle != INVALID_HANDLE_VALUE)
+	{
+		LARGE_INTEGER _FileSize;
+		if (GetFileSizeEx(_FileHandle, &_FileSize))
+		{
+			uint32 _FileSize32 = Util_SafeTruncate_uint64(_FileSize.QuadPart);
+			_Result.Content = VirtualAlloc(0, _FileSize32, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			if (_Result.Content)
+			{
+				DWORD _BytesRead;
+				if (ReadFile(_FileHandle, _Result.Content, _FileSize32, &_BytesRead, 0) && (_BytesRead == _FileSize32))
+				{
+					_Result.ContentSize = _FileSize32;
+				}
+				else
+				{
+					Util_FreeFileMemory(_Result.Content);
+				}
+			}
+			else
+			{
+				// LOGGING
+			}
+		}
+		else
+		{
+			// LOGGING
+		}
+
+		CloseHandle(_FileHandle);
+	}
+	else
+	{
+		// LOGGING
+	}
 	
 	return _Result;
 }
 
 
-
+/*
 static const char* vertexShaderSource = "#version 330 core\n"
 "layout (location = 0) in vec3 aPos;\n"
 "void main()\n"
@@ -123,6 +184,7 @@ static const char* fragmentShaderSource = "#version 330 core\n"
 "{\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
+*/
 
 static unsigned int _shaderProgram;
 static unsigned int _VBO;
@@ -319,8 +381,17 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 									// Testing code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 									//
 
+									const char* _VertexShaderPath = "R:\\resources\\shader.vs";
+									const char* _FragmentShaderPath = "R:\\resources\\shader.fs";
+									//if (_FileMemory.Content)
+									//{
+									//	Util_FreeFileMemory(_FileMemory.Content);
+									//}
+
+									ReadFileResult _FileMemory = Win32_ReadFile(_VertexShaderPath);
 									unsigned int _vertexShader = glCreateShader_(GL_VERTEX_SHADER);
-									glShaderSource_(_vertexShader, 1, &vertexShaderSource, nullptr);
+									//glShaderSource_(_vertexShader, 1, &vertexShaderSource, nullptr);
+									glShaderSource_(_vertexShader, 1, &(const char*)_FileMemory.Content, nullptr);
 									glCompileShader_(_vertexShader);
 
 									int _success = 0;
@@ -332,8 +403,10 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 										OutputDebugString("Vertex shader has issue...");
 									}
 
+									_FileMemory = Win32_ReadFile(_FragmentShaderPath);
 									unsigned int _fragmentShader = glCreateShader_(GL_FRAGMENT_SHADER);
-									glShaderSource_(_fragmentShader, 1, &fragmentShaderSource, nullptr);
+									//glShaderSource_(_fragmentShader, 1, &fragmentShaderSource, nullptr);
+									glShaderSource_(_fragmentShader, 1, &(const char*)_FileMemory.Content, nullptr);
 									glCompileShader_(_fragmentShader);
 									glGetShaderiv_(_fragmentShader, GL_COMPILE_STATUS, &_success);
 									if (!_success)
@@ -355,6 +428,7 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 									
 									glDeleteShader_(_vertexShader);
 									glDeleteShader_(_fragmentShader);
+									Util_FreeFileMemory(_FileMemory.Content);
 
 									//
 

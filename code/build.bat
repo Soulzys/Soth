@@ -2,7 +2,7 @@
 
 IF NOT EXIST ..\build mkdir ..\build
 pushd ..\build
-cl -MT -GR- -Gm- -EHa- -Oi -WX -W4 -wd4201 -wd4100 -wd4189 -FC -Z7 -Fwin32_soth.map ..\code\win32_soth.cpp user32.lib gdi32.lib opengl32.lib
+cl -MT -GR- -Gm- -EHa- -Oi -WX -W4 -wd4201 -wd4100 -wd4189 -DBUILD_ASSERT=1 -FC -Z7 -Fwin32_soth.map ..\code\win32_soth.cpp user32.lib gdi32.lib opengl32.lib
 popd
 
 :: -W4 --> warning level 4 (from the compiler). Can also write -Wall --> actives all possible warnings (but then we get flooded)
