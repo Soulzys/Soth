@@ -1,12 +1,10 @@
 #include <windows.h>
 #include <gl/gl.h>
 #include <stdint.h>
-#include "shader.h"
-#include "openglcontroller.cpp"
 
 /* TODO
 
-	- Complete the Win32_ReadFile function in order to read shader files
+	- 
  
 */
 
@@ -15,10 +13,11 @@ typedef uint16_t uint16 ;
 typedef uint32_t uint32 ;
 typedef uint64_t uint64 ;
 
+#include "openglcontroller.cpp"
+#include "shader.cpp"
+#include "soth.cpp"
+
 static bool g_Running;
-
-
-
 
 
 #if BUILD_ASSERT
@@ -30,11 +29,7 @@ static bool g_Running;
 
 // Utilitary structs
 //
-struct ReadFileResult
-{
-	uint32 ContentSize ;
-	void*  Content     ;
-};
+
 
 static uint32 Util_SafeTruncate_uint64(uint64 Value)
 {
@@ -101,9 +96,9 @@ static ReadFileResult Win32_ReadFile(const char* Filename)
 	return _Result;
 }
 
-static unsigned int _shaderProgram;
-static unsigned int _VBO;
-static unsigned int _VAO;
+//static unsigned int _shaderProgram;
+//static unsigned int _VBO;
+//static unsigned int _VAO;
 
 
 
@@ -227,15 +222,23 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 									// Testing code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 									//
 
-									const char* _VertexShaderPath = "R:\\resources\\shader.vs";
-									const char* _FragmentShaderPath = "R:\\resources\\shader.fs";
+									//const char* _VertexShaderPath = "R:\\resources\\shader.vs";
+									//const char* _FragmentShaderPath = "R:\\resources\\shader.fs";
 									//if (_FileMemory.Content)
 									//{
 									//	Util_FreeFileMemory(_FileMemory.Content);
 									//}
 
-									ReadFileResult _FileMemory = Win32_ReadFile(_VertexShaderPath);
-									unsigned int _vertexShader = OpenGL::CreateShader(GL_VERTEX_SHADER);
+									LoadShaders();
+
+									// NOTE: Would be better to re-use the struct
+									//ReadFileResult _VertexShaderFile   = Win32_ReadFile(_VertexShaderPath);
+									//ReadFileResult _FragmentShaderFile = Win32_ReadFile(_FragmentShaderPath);
+									//Shader::CreateShader(_VertexShaderFile.Content, _FragmentShaderFile.Content, _shaderProgram);
+									//Util_FreeFileMemory(_VertexShaderFile.Content);
+									//Util_FreeFileMemory(_FragmentShaderFile.Content);
+
+									/*unsigned int _vertexShader = OpenGL::CreateShader(GL_VERTEX_SHADER);
 									//glShaderSource_(_vertexShader, 1, &vertexShaderSource, nullptr);
 									OpenGL::ShaderSource(_vertexShader, 1, &(const char*)_FileMemory.Content, nullptr);
 									OpenGL::CompileShader(_vertexShader);
@@ -274,10 +277,10 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 									
 									OpenGL::DeleteShader(_vertexShader);
 									OpenGL::DeleteShader(_fragmentShader);
-									Util_FreeFileMemory(_FileMemory.Content);
+									Util_FreeFileMemory(_FileMemory.Content);*/
 
 									//
-
+									/*
 									float _vertices[] = 
 									{
 										-0.5f, -0.5f, 0.0f, 
@@ -297,7 +300,7 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 									OpenGL::EnableVertexAttribArray(0);
 
 									OpenGL::BindBuffer(GL_ARRAY_BUFFER, 0);
-									OpenGL::BindVertexArray(0);
+									OpenGL::BindVertexArray(0);*/
 								}
 								else
 								{
@@ -412,9 +415,10 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 					glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT);
 
-					OpenGL::UseProgram(_shaderProgram);
-					OpenGL::BindVertexArray(_VAO);
-					glDrawArrays(GL_TRIANGLES, 0, 3);
+					//OpenGL::UseProgram(_shaderProgram);
+					//OpenGL::BindVertexArray(_VAO);
+					//glDrawArrays(GL_TRIANGLES, 0, 3);
+					//UpdateGame();
 
 
 					SwapBuffers(_DC);
@@ -436,9 +440,10 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 
 
 
-	OpenGL::DeleteVertexArrays(1, &_VAO);
-	OpenGL::DeleteBuffers(1, &_VBO);
-	OpenGL::DeleteProgram(_shaderProgram);
+	//OpenGL::DeleteVertexArrays(1, &_VAO);
+	//OpenGL::DeleteBuffers(1, &_VBO);
+	//OpenGL::DeleteProgram(_shaderProgram);
+	ExitGame();
 
 	return (0);
 }
