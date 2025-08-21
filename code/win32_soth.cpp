@@ -8,27 +8,25 @@
  
 */
 
+typedef int8_t   int8   ;
+typedef int16_t  int16  ;
+typedef int32_t  int32  ;
+typedef int64_t  int64  ;
 typedef uint8_t  uint8  ;
 typedef uint16_t uint16 ;
 typedef uint32_t uint32 ;
 typedef uint64_t uint64 ;
+
+typedef float    real32 ;
+typedef double   real64 ;
+
+typedef int32    bool32 ;
 
 #include "openglcontroller.cpp"
 #include "shader.cpp"
 #include "soth.cpp"
 
 static bool g_Running;
-
-
-#if BUILD_ASSERT
-#define ASSERT(Expression) if (!(Expression)) {*(int*)0 = 0;}
-#else
-#define ASSERT(Expression)
-#endif
-
-
-// Utilitary structs
-//
 
 
 static uint32 Util_SafeTruncate_uint64(uint64 Value)
@@ -217,7 +215,6 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 									SetWindowText(WindowHandle, (LPCSTR)glGetString(GL_VERSION));
 
 
-
 									//
 									// Testing code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 									//
@@ -229,7 +226,7 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 									//	Util_FreeFileMemory(_FileMemory.Content);
 									//}
 
-									LoadShaders();
+									//LoadShaders();
 
 									// NOTE: Would be better to re-use the struct
 									//ReadFileResult _VertexShaderFile   = Win32_ReadFile(_VertexShaderPath);
@@ -399,6 +396,11 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 		if (Win32_InitOpenGL(Instance, &_WindowClass, _WindowHandle))
 		{
 			HDC _DC = GetDC(_WindowHandle);
+
+			GameMemory _GameMemory = {};
+			_GameMemory.PermanentStorageSize = MEGABYTES(64);
+			_GameMemory.PermanentStorage = 	VirtualAlloc(0, _GameMemory.PermanentStorageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+
 			g_Running = true;
 
 			while (g_Running)
@@ -411,15 +413,10 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 						g_Running = false;
 					}
 
-
 					glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 					glClear(GL_COLOR_BUFFER_BIT);
 
-					//OpenGL::UseProgram(_shaderProgram);
-					//OpenGL::BindVertexArray(_VAO);
-					//glDrawArrays(GL_TRIANGLES, 0, 3);
-					//UpdateGame();
-
+					UpdateGame(&_GameMemory);
 
 					SwapBuffers(_DC);
 
@@ -438,12 +435,6 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 		// LOGGING
 	}
 
-
-
-	//OpenGL::DeleteVertexArrays(1, &_VAO);
-	//OpenGL::DeleteBuffers(1, &_VBO);
-	//OpenGL::DeleteProgram(_shaderProgram);
 	ExitGame();
-
 	return (0);
 }

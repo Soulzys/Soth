@@ -1,21 +1,22 @@
 #include "soth.h"
 #include "shader.h"
 
-static unsigned int _VBO;
-static unsigned int _VAO;
-static unsigned int _shaderProgramStub;
+//static unsigned int _VBO;
+//static unsigned int _VAO;
+//static unsigned int _shaderProgramStub;
 
-void LoadShaders()
+void LoadShaders(GameState* State)
 {
+	if (!State) return;
+
 	const char* _VertexShaderPath = "R:\\resources\\shader.vs";
 	const char* _FragmentShaderPath = "R:\\resources\\shader.fs";
 
 	ReadFileResult _VertexShaderFile = Win32_ReadFile(_VertexShaderPath);
 	ReadFileResult _FragmentShaderFile = Win32_ReadFile(_FragmentShaderPath);
 
-	//unsigned int _shaderProgramStub;
-
-	Shader::CreateShader(_VertexShaderFile.Content, _FragmentShaderFile.Content, _shaderProgramStub);
+	unsigned int _shaderProgram;
+	Shader::CreateShader(_VertexShaderFile.Content, _FragmentShaderFile.Content, _shaderProgram);
 
 	// TODO: need to handle this
 	//Util_FreeFileMemory(_VertexShaderFile.Content);
@@ -30,8 +31,8 @@ void LoadShaders()
 	};
 
 
-	//unsigned int _VBO;
-	//unsigned int _VAO;
+	unsigned int _VBO;
+	unsigned int _VAO;
 
 	OpenGL::GenVertexArrays(1, &_VAO);
 	OpenGL::GenBuffers(1, &_VBO);
@@ -45,18 +46,33 @@ void LoadShaders()
 
 	OpenGL::BindBuffer(GL_ARRAY_BUFFER, 0);
 	OpenGL::BindVertexArray(0);
+
+	State->VBO           = (uint16)_VBO;
+	State->VAO           = (uint16)_VAO;
+	State->ShaderProgram = (uint16)_shaderProgram;
 }
 
-void UpdateGame()
+void UpdateGame(GameMemory* Memory)
 {
-	OpenGL::UseProgram(_shaderProgramStub);
-	OpenGL::BindVertexArray(_VAO);
+	ASSERT(sizeof(GameState) <= Memory->PermanentStorageSize);
+
+	GameState* _GameState = (GameState*)Memory->PermanentStorage;
+
+	if (!Memory->IsInitialized)
+	{
+		LoadShaders(_GameState);
+		Memory->IsInitialized = true;
+	}
+
+	OpenGL::UseProgram(_GameState->ShaderProgram);
+	OpenGL::BindVertexArray(_GameState->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 void ExitGame()
 {
-	OpenGL::DeleteVertexArrays(1, &_VAO);
-	OpenGL::DeleteBuffers(1, &_VBO);
-	OpenGL::DeleteProgram(_shaderProgramStub);
+	// NOTE: do we even need this since we're exiting the game anyway ? 
+	//OpenGL::DeleteVertexArrays(1, &_VAO);
+	//OpenGL::DeleteBuffers(1, &_VBO);
+	//OpenGL::DeleteProgram(_shaderProgramStub);
 }
