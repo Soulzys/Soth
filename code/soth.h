@@ -16,16 +16,16 @@ struct ReadFileResult
 
 struct GameState
 {
-	uint16 VBO;
-	uint16 VAO;
-	uint16 ShaderProgram;
+	uint16 VBO           ;
+	uint16 VAO           ;
+	uint16 ShaderProgram ;
 };
 
 struct GameMemory
 {
-	bool32 IsInitialized;
-	uint64 PermanentStorageSize;
-	void* PermanentStorage;
+	bool32 IsInitialized        ;
+	uint64 PermanentStorageSize ;
+	void*  PermanentStorage     ;
 };
 
 static ReadFileResult Win32_ReadFile(const char* Filename);

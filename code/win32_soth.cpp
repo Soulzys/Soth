@@ -214,90 +214,7 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 									// TODO: load OpenGL functions
 									SetWindowText(WindowHandle, (LPCSTR)glGetString(GL_VERSION));
 
-
-									//
-									// Testing code ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-									//
-
-									//const char* _VertexShaderPath = "R:\\resources\\shader.vs";
-									//const char* _FragmentShaderPath = "R:\\resources\\shader.fs";
-									//if (_FileMemory.Content)
-									//{
-									//	Util_FreeFileMemory(_FileMemory.Content);
-									//}
-
-									//LoadShaders();
-
-									// NOTE: Would be better to re-use the struct
-									//ReadFileResult _VertexShaderFile   = Win32_ReadFile(_VertexShaderPath);
-									//ReadFileResult _FragmentShaderFile = Win32_ReadFile(_FragmentShaderPath);
-									//Shader::CreateShader(_VertexShaderFile.Content, _FragmentShaderFile.Content, _shaderProgram);
-									//Util_FreeFileMemory(_VertexShaderFile.Content);
-									//Util_FreeFileMemory(_FragmentShaderFile.Content);
-
-									/*unsigned int _vertexShader = OpenGL::CreateShader(GL_VERTEX_SHADER);
-									//glShaderSource_(_vertexShader, 1, &vertexShaderSource, nullptr);
-									OpenGL::ShaderSource(_vertexShader, 1, &(const char*)_FileMemory.Content, nullptr);
-									OpenGL::CompileShader(_vertexShader);
-
-									int _success = 0;
-									char _infoLogs[512];
-									OpenGL::GetShaderiv(_vertexShader, GL_COMPILE_STATUS, &_success);
-									if (!_success)
-									{
-										OpenGL::GetShaderInfoLog(_vertexShader, 512, nullptr, _infoLogs);
-										OutputDebugString("Vertex shader has issue...");
-									}
-
-									_FileMemory = Win32_ReadFile(_FragmentShaderPath);
-									unsigned int _fragmentShader = OpenGL::CreateShader(GL_FRAGMENT_SHADER);
-									//glShaderSource_(_fragmentShader, 1, &fragmentShaderSource, nullptr);
-									OpenGL::ShaderSource(_fragmentShader, 1, &(const char*)_FileMemory.Content, nullptr);
-									OpenGL::CompileShader(_fragmentShader);
-									OpenGL::GetShaderiv(_fragmentShader, GL_COMPILE_STATUS, &_success);
-									if (!_success)
-									{
-										OpenGL::GetShaderInfoLog(_fragmentShader, 512, nullptr, _infoLogs);
-										OutputDebugString("Fragment shader has issue...");
-									}
-
-									_shaderProgram = OpenGL::CreateProgram();
-									OpenGL::AttachShader(_shaderProgram, _vertexShader);
-									OpenGL::AttachShader(_shaderProgram, _fragmentShader);
-									OpenGL::LinkProgram(_shaderProgram);
-									OpenGL::GetShaderiv(_shaderProgram, GL_COMPILE_STATUS, &_success);
-									if (!_success)
-									{
-										OpenGL::GetShaderInfoLog(_shaderProgram, 512, nullptr, _infoLogs);
-										OutputDebugString("Program shader has issue...");
-									}
-									
-									OpenGL::DeleteShader(_vertexShader);
-									OpenGL::DeleteShader(_fragmentShader);
-									Util_FreeFileMemory(_FileMemory.Content);*/
-
-									//
-									/*
-									float _vertices[] = 
-									{
-										-0.5f, -0.5f, 0.0f, 
-										0.5f, -0.5f, 0.0f, 
-										0.0f, 0.5f, 0.0f
-									};
-
-									
-									OpenGL::GenVertexArrays(1, &_VAO);
-									OpenGL::GenBuffers(1, &_VBO);
-									OpenGL::BindVertexArray(_VAO);
-
-									OpenGL::BindBuffer(GL_ARRAY_BUFFER, _VBO);
-									OpenGL::BufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW);
-
-									OpenGL::VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-									OpenGL::EnableVertexAttribArray(0);
-
-									OpenGL::BindBuffer(GL_ARRAY_BUFFER, 0);
-									OpenGL::BindVertexArray(0);*/
+									return true;
 								}
 								else
 								{
@@ -346,8 +263,6 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 		// LOGING
 		return false;
 	}
-
-	return true;
 }
 
 LRESULT CALLBACK Win32_WindowCallback(HWND Window, UINT Message, WPARAM WParam, LPARAM LParam)

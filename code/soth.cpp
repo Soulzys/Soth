@@ -1,10 +1,6 @@
 #include "soth.h"
 #include "shader.h"
 
-//static unsigned int _VBO;
-//static unsigned int _VAO;
-//static unsigned int _shaderProgramStub;
-
 void LoadShaders(GameState* State)
 {
 	if (!State) return;
@@ -72,6 +68,7 @@ void UpdateGame(GameMemory* Memory)
 void ExitGame()
 {
 	// NOTE: do we even need this since we're exiting the game anyway ? 
+	//
 	//OpenGL::DeleteVertexArrays(1, &_VAO);
 	//OpenGL::DeleteBuffers(1, &_VBO);
 	//OpenGL::DeleteProgram(_shaderProgramStub);

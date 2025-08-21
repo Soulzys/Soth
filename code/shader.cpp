@@ -1,5 +1,4 @@
 #include "shader.h"
-//#include "openglcontroller.cpp"
 
 bool Shader::CreateShader(void* VertexShaderCode, void* FragmentShaderCode, unsigned int& ShaderId)
 {
