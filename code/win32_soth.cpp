@@ -22,6 +22,7 @@ typedef double   real64 ;
 
 typedef int32    bool32 ;
 
+#include "utils.cpp"
 #include "openglcontroller.cpp"
 #include "shader.cpp"
 #include "soth.cpp"

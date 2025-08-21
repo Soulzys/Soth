@@ -60,6 +60,9 @@ void UpdateGame(GameMemory* Memory)
 		Memory->IsInitialized = true;
 	}
 
+	Vec3 _V = Vec3();
+	_V.X = 3;
+
 	OpenGL::UseProgram(_GameState->ShaderProgram);
 	OpenGL::BindVertexArray(_GameState->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
