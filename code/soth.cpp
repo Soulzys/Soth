@@ -58,6 +58,9 @@ void UpdateGame(GameMemory* Memory)
 	{
 		LoadShaders(_GameState);
 		Memory->IsInitialized = true;
+
+		MatrixS4 _M;
+
 	}
 
 	Vec3 _V = Vec3();

@@ -74,3 +74,32 @@ Vec3 Vec3::operator/(const Vec3& V) const
 {
 	return Vec3(X / V.X, Y / V.Y, Z / V.Z);
 }
+
+
+
+MatrixS4::MatrixS4()
+{
+}
+
+const real32* MatrixS4::operator[](uint8 i) const
+{
+	return M[i];
+}
+
+MatrixS4 MatrixS4::operator*(const MatrixS4& Ma) const
+{
+	MatrixS4 _R;
+
+	for (uint8 i = 0; i < 4; i++)
+	{
+		for (uint8 j = 0; j < 4; j++)
+		{
+			_R[i][j] = M[i][0] * Ma[0][j] + 
+					   M[i][1] * Ma[1][j] + 
+					   M[i][2] * Ma[2][j] + 
+					   M[i][3] * Ma[3][j] ;
+		}
+	}
+
+	return _R;
+}
