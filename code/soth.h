@@ -29,5 +29,5 @@ struct GameMemory
 };
 
 static ReadFileResult Win32_ReadFile(const char* Filename);
-static void DebugLogVector(const Vec3& V);
+static void DebugLogVector(const Vec3& V, uint8 Precision = 3);
 //static void DebugLogMatrix(const MatrixS4& M);

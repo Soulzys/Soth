@@ -62,10 +62,10 @@ void UpdateGame(GameMemory* Memory)
 		MatrixS4 _M;
 
 		Vec3 _V = Vec3();
-		_V.X = 3;
+		_V.X = 3.543f;
 		_V.Y = 9;
 		_V.Z = 65;
-		DebugLogVector(_V);
+		DebugLogVector(_V, 3);
 	}
 
 
