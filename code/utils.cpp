@@ -81,6 +81,17 @@ MatrixS4::MatrixS4()
 {
 }
 
+MatrixS4::MatrixS4(real32 N)
+{
+	for (uint8 i = 0; i < 4; i++)
+	{
+		for (uint8 j = 0; j < 4; j++)
+		{
+			M[i][j] = N;
+		}
+	}
+}
+
 const real32* MatrixS4::operator[](uint8 i) const
 {
 	return M[i];

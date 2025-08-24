@@ -22,6 +22,7 @@
 	struct MatrixS4
 	{
 		MatrixS4();
+		MatrixS4(real32 N);
 
 		const real32* operator[](uint8 i) const;
 		real32* operator[](uint8 i);

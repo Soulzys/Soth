@@ -122,18 +122,26 @@ static DebugFloatingNumber DebugConvertFloatToInt(real32 F, uint8 Precision)
 	return _R;
 }
 
-static void DebugLogVector(const Vec3& V, uint8 Precision)
+static void DebugLogVector(const Vec3& V, uint8 Precision, const char* Extra)
 {
 	DebugFloatingNumber _X = DebugConvertFloatToInt(V.X, Precision);
 	DebugFloatingNumber _Y = DebugConvertFloatToInt(V.Y, Precision);
 	DebugFloatingNumber _Z = DebugConvertFloatToInt(V.Z, Precision);
 
 	char _Buffer[256];
-	wsprintf(_Buffer, "Vec3 : [%d.%d, %d.%d, %d.%d]\n", _X.IntegerPart, _X.DecimalPart, _Y.IntegerPart, _Y.DecimalPart, _Z.IntegerPart, _Z.DecimalPart);
+	wsprintf(_Buffer, "%s[%d.%d, %d.%d, %d.%d]\n", Extra, _X.IntegerPart, _X.DecimalPart, _Y.IntegerPart, _Y.DecimalPart, _Z.IntegerPart, _Z.DecimalPart);
 	OutputDebugString(_Buffer);
 }
 
+static void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)
+{
+	real32 _00 = M[0][0];
+	real32 _23 = M[2][3];
 
+	DebugLogVector(Vec3(M[0][0], M[0][1], M[0][2]), Precision, "\t");
+	DebugLogVector(Vec3(M[1][0], M[1][1], M[1][2]), Precision, "\t");
+	DebugLogVector(Vec3(M[2][0], M[2][1], M[2][2]), Precision, "\t");
+}
 
 
 
