@@ -24,7 +24,12 @@
 		MatrixS4();
 
 		const real32* operator[](uint8 i) const;
+		real32* operator[](uint8 i);
+		//real32* operator*=(real32 N);
 		MatrixS4 operator*(const MatrixS4& Ma) const;
+		MatrixS4& Translate(const Vec3& V);
+		MatrixS4& Scale(const Vec3& V);
+
 
 		real32 M[4][4] = {
 						 	{1, 0, 0, 0},

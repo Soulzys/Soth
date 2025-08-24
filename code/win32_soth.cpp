@@ -100,6 +100,42 @@ static ReadFileResult Win32_ReadFile(const char* Filename)
 //static unsigned int _VAO;
 
 
+struct DebugFloatingNumber
+{
+	uint8 IntegerPart;
+	uint8 DecimalPart;
+};
+
+static DebugFloatingNumber DebugConvertFloatToInt(real32 F, uint8 Precision)
+{
+	DebugFloatingNumber _R = {};
+	_R.IntegerPart = (uint8)F;
+	F -= _R.IntegerPart;
+
+	for (uint8 i = 0; i < Precision; i++)
+	{
+		F *= 10;
+	}
+
+	_R.DecimalPart = (uint8)F;
+
+	return _R;
+}
+
+static void DebugLogVector(const Vec3& V)
+{
+	DebugFloatingNumber _X = DebugConvertFloatToInt(V.X, 3);
+	DebugFloatingNumber _Y = DebugConvertFloatToInt(V.Y, 3);
+	DebugFloatingNumber _Z = DebugConvertFloatToInt(V.Z, 3);
+
+	char _Buffer[256];
+	wsprintf(_Buffer, "Vec3 : [%d.%d, %d.%d, %d.%d]\n", _X.IntegerPart, _X.DecimalPart, _Y.IntegerPart, _Y.DecimalPart, _Z.IntegerPart, _Z.DecimalPart);
+	OutputDebugString(_Buffer);
+}
+
+
+
+
 
 
 

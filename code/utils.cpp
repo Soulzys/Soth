@@ -86,6 +86,16 @@ const real32* MatrixS4::operator[](uint8 i) const
 	return M[i];
 }
 
+real32* MatrixS4::operator[](uint8 i)
+{
+	return M[i];
+}
+
+//real32* MatrixS4::operator*=(real32 N)
+//{
+//	
+//}
+
 MatrixS4 MatrixS4::operator*(const MatrixS4& Ma) const
 {
 	MatrixS4 _R;
@@ -102,4 +112,22 @@ MatrixS4 MatrixS4::operator*(const MatrixS4& Ma) const
 	}
 
 	return _R;
+}
+
+MatrixS4& MatrixS4::Translate(const Vec3& V)
+{
+	M[0][3] *= V.X;
+	M[1][3] *= V.Y;
+	M[2][3] *= V.Z;
+
+	return *this;
+}
+
+MatrixS4& MatrixS4::Scale(const Vec3& V)
+{
+	M[0][0] *= V.X;
+	M[1][1] *= V.Y;
+	M[2][2] *= V.Z;
+
+	return *this;
 }
