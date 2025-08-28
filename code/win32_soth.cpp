@@ -8,6 +8,8 @@
  
 */
 
+#define PI32 3.14159265359
+
 typedef int8_t   int8   ;
 typedef int16_t  int16  ;
 typedef int32_t  int32  ;
@@ -122,6 +124,22 @@ static DebugFloatingNumber DebugConvertFloatToInt(real32 F, uint8 Precision)
 	return _R;
 }
 
+static DebugFloatingNumber DebugConvertDoubleToInt(real64 F, uint8 Precision)
+{
+	DebugFloatingNumber _R = {};
+	_R.IntegerPart = (uint64)F;
+	F -= _R.IntegerPart;
+
+	for (uint8 i = 0; i <= Precision; i++)
+	{
+		F *= 10;
+	}
+
+	_R.DecimalPart = (uint64)F;
+
+	return _R;
+}
+
 static void DebugLogVector(const Vec3& V, real32 W, uint8 Precision, const char* Extra)
 {
 	DebugFloatingNumber _X = DebugConvertFloatToInt(V.X, Precision);
@@ -135,6 +153,12 @@ static void DebugLogVector(const Vec3& V, real32 W, uint8 Precision, const char*
 																 _Z.IntegerPart, _Z.DecimalPart, 
 																 _W.IntegerPart, _W.DecimalPart);
 	OutputDebugString(_Buffer);
+
+	char _tBuffer[256];
+	real64 _tr = cos(PI32);
+	DebugFloatingNumber _tt = DebugConvertDoubleToInt(_tr, 2);
+	wsprintf(_tBuffer, "%d.%d\n", _tt.IntegerPart, _tt.DecimalPart);
+	OutputDebugString(_tBuffer);
 }
 
 static void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)

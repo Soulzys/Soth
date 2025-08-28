@@ -70,10 +70,28 @@ Vec3 Vec3::operator*(const Vec3& V) const
 	return Vec3(X * V.X, Y * V.Y, Z * V.Z);
 }
 
+Vec3 Vec3::operator*(const MatrixS4& M) const
+{
+	Vec3 _V;
+	_V.X = (X * M[0][0]) + (Y * M[1][0]) + (Z * M[2][0]) + M[3][0];
+	_V.Y = (X * M[0][1]) + (Y * M[1][1]) + (Z * M[2][1]) + M[3][1];
+	_V.Z = (X * M[0][2]) + (Y * M[1][2]) + (Z * M[2][2]) + M[3][2];
+	return _V;
+}
+
 Vec3 Vec3::operator/(const Vec3& V) const
 {
 	return Vec3(X / V.X, Y / V.Y, Z / V.Z);
 }
+
+Vec3& Vec3::Scale(const MatrixS4& M)
+{
+	//Matrix
+
+	return *this;
+}
+
+
 
 
 
@@ -127,18 +145,58 @@ MatrixS4 MatrixS4::operator*(const MatrixS4& Ma) const
 
 MatrixS4& MatrixS4::Translate(const Vec3& V)
 {
-	M[0][3] *= V.X;
-	M[1][3] *= V.Y;
-	M[2][3] *= V.Z;
+	M[0][3] += V.X;
+	M[1][3] += V.Y;
+	M[2][3] += V.Z;
 
 	return *this;
 }
 
-MatrixS4& MatrixS4::Scale(const Vec3& V)
+MatrixS4& MatrixS4::RotateAroundX(real32 Amount)
 {
-	M[0][0] *= V.X;
-	M[1][1] *= V.Y;
-	M[2][2] *= V.Z;
+	M[1][1] *= (real32) cos(Amount);
+	M[1][2] *= (real32) sin(Amount);
+	M[2][1] *= (real32)-sin(Amount);
+	M[2][2] *= (real32) cos(Amount);
+	
+	return *this;
+}
+
+MatrixS4& MatrixS4::RotateAroundY(real32 Amount)
+{
+	M[0][0] *= (real32) cos(Amount);
+	M[0][2] *= (real32)-sin(Amount);
+	M[2][0] *= (real32) sin(Amount);
+	M[2][2] *= (real32) cos(Amount);
+
+	return *this;
+}
+
+MatrixS4& MatrixS4::RotateAroundZ(real32 Amount)
+{
+	M[0][0] *= (real32) cos(Amount);
+	M[0][1] *= (real32) sin(Amount);
+	M[1][0] *= (real32)-sin(Amount);
+	M[2][2] *= (real32) cos(Amount);
+	
+	return *this;
+}
+
+//MatrixS4& MatrixS4::Scale(const Vec3& V)
+//{
+//	M[0][0] *= V.X;
+//	M[1][1] *= V.Y;
+//	M[2][2] *= V.Z;
+//
+//	return *this;
+//}
+
+MatrixS4& MatrixS4::Scale(real32 Amount)
+{
+	M[0][0] *= Amount; M[0][1] *= Amount; M[0][2] *= Amount;
+	M[1][0] *= Amount; M[1][1] *= Amount; M[1][2] *= Amount;
+	M[2][0] *= Amount; M[2][1] *= Amount; M[2][2] *= Amount;
+	M[3][0] *= Amount; M[3][1] *= Amount; M[3][2] *= Amount;
 
 	return *this;
 }
