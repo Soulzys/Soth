@@ -60,7 +60,8 @@ void UpdateGame(GameMemory* Memory)
 		Memory->IsInitialized = true;
 
 		MatrixS4 _M(1.0f);
-		_M.Translate(Vec3(2.0f, 1.0f, 3.0f));
+		//_M.Translate(Vec3(2.0f, 1.0f, 3.0f));
+		_M.Scale(Vec3(2.0f, 1.0f, 3.0f));
 
 		Vec3 _V = Vec3();
 		_V.X = 3.543f;
