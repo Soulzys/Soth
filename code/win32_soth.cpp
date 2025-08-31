@@ -154,11 +154,11 @@ static void DebugLogVector(const Vec3& V, real32 W, uint8 Precision, const char*
 																 _W.IntegerPart, _W.DecimalPart);
 	OutputDebugString(_Buffer);
 
-	char _tBuffer[256];
-	real64 _tr = cos(PI32);
-	DebugFloatingNumber _tt = DebugConvertDoubleToInt(_tr, 2);
-	wsprintf(_tBuffer, "%d.%d\n", _tt.IntegerPart, _tt.DecimalPart);
-	OutputDebugString(_tBuffer);
+	//char _tBuffer[256];
+	//real64 _tr = cos(PI32);
+	//DebugFloatingNumber _tt = DebugConvertDoubleToInt(_tr, 2);
+	//wsprintf(_tBuffer, "%d.%d\n", _tt.IntegerPart, _tt.DecimalPart);
+	//OutputDebugString(_tBuffer);
 }
 
 static void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)
@@ -170,6 +170,11 @@ static void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)
 	DebugLogVector(Vec3(M[1][0], M[1][1], M[1][2]), M[1][3], Precision, "\t");
 	DebugLogVector(Vec3(M[2][0], M[2][1], M[2][2]), M[2][3], Precision, "\t");
 	DebugLogVector(Vec3(M[3][0], M[3][1], M[3][2]), M[3][3], Precision, "\t");
+}
+
+static void DebugLogMessage(const char* Message)
+{
+	OutputDebugString(Message);
 }
 
 
