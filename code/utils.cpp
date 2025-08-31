@@ -110,6 +110,17 @@ MatrixS4::MatrixS4(real32 N)
 	}
 }
 
+MatrixS4::MatrixS4(const MatrixS4& Ma)
+{
+	for (uint8 i = 0; i < 4; i++)
+	{
+		for (uint8 j = 0; j < 4; j++)
+		{
+			M[i][j] = Ma[i][j];
+		}
+	}
+}
+
 const real32* MatrixS4::operator[](uint8 i) const
 {
 	return M[i];
@@ -142,6 +153,21 @@ MatrixS4 MatrixS4::operator*(const MatrixS4& Ma) const
 
 	return _R;
 }
+
+/*MatrixS4 MatrixS4::operator=(real32* Ma) const
+{
+	MatrixS4 _R;
+
+	for (uint8 i = 0; i < 4; i++)
+	{
+		for (uint8 j = 0; j < 4; j++)
+		{
+			_R[i][j] = Ma[i][j];
+		}
+	}
+
+	return _R;
+}*/
 
 MatrixS4& MatrixS4::Translate(const Vec3& V)
 {
@@ -193,10 +219,52 @@ MatrixS4& MatrixS4::RotateAroundZ(real32 Amount)
 
 MatrixS4& MatrixS4::Scale(real32 Amount)
 {
-	M[0][0] *= Amount; M[0][1] *= Amount; M[0][2] *= Amount;
-	M[1][0] *= Amount; M[1][1] *= Amount; M[1][2] *= Amount;
-	M[2][0] *= Amount; M[2][1] *= Amount; M[2][2] *= Amount;
-	M[3][0] *= Amount; M[3][1] *= Amount; M[3][2] *= Amount;
+	M[0][0] *= Amount; M[0][1] *= Amount; M[0][2] *= Amount; M[0][3] *= Amount; 
+	M[1][0] *= Amount; M[1][1] *= Amount; M[1][2] *= Amount; M[1][3] *= Amount; 
+	M[2][0] *= Amount; M[2][1] *= Amount; M[2][2] *= Amount; M[2][3] *= Amount; 
+	M[3][0] *= Amount; M[3][1] *= Amount; M[3][2] *= Amount; M[3][3] *= Amount; 
 
 	return *this;
+}
+
+MatrixS4& MatrixS4::Transpose()
+{
+	MatrixS4 _T;
+	for (uint8_t i = 0; i < 4; i++)
+	{
+		for (uint8_t j = 0; j < 4; j++)
+		{
+			_T[i][j] = M[i][j];
+		}
+	}
+
+	for (uint8_t i = 0; i < 4; i++)
+	{
+		for (uint8_t j = 0; j < 4; j++)
+		{
+			M[i][j] = _T[j][i];
+		}
+	}
+
+	return *this;
+}
+
+MatrixS4 MatrixS4::Transpose() const
+{
+	MatrixS4 _M;
+
+	for (uint8_t i = 0; i < 4; i++)
+	{
+		for (uint8_t j = 0; j < 4; j++)
+		{
+			_M[i][j] = M[j][i];
+		}
+	}
+
+	return _M;
+}
+
+real32* MatrixS4::GetPointer()
+{
+	return (real32*)(M);
 }

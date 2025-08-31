@@ -32,9 +32,11 @@
 	{
 		MatrixS4();
 		MatrixS4(real32 N);
+		MatrixS4(const MatrixS4& Ma);
 
 		const real32* operator[](uint8 i) const;
 		real32* operator[](uint8 i);
+		//MatrixS4 operator=(real32* M) const;
 		//real32* operator*=(real32 N);
 		MatrixS4 operator*(const MatrixS4& Ma) const;
 		MatrixS4& Translate(const Vec3& V);
@@ -43,6 +45,9 @@
 		MatrixS4& RotateAroundZ(real32 Amount);
 		//MatrixS4& Scale(const Vec3& V);
 		MatrixS4& Scale(real32 Amount);
+		MatrixS4& Transpose();
+		MatrixS4 Transpose() const;
+		real32* GetPointer();
 
 
 		real32 M[4][4] = {

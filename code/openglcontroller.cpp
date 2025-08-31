@@ -20,6 +20,7 @@
 #define GL_VERTEX_SHADER                  0x8B31
 #define GL_FRAGMENT_SHADER                0x8B30
 #define GL_COMPILE_STATUS                 0x8B81
+#define GL_LINK_STATUS                    0x8B82
 
 // From glext.h
 //
@@ -47,6 +48,8 @@ typedef void   (APIENTRY* GL_GET_SHADERIV               ) (GLuint shader, GLenum
 typedef void   (APIENTRY* GL_GET_SHADER_INFO_LOG        ) (GLuint shader, GLsizei bufSize, GLsizei* length, char* infoLog);
 typedef void   (APIENTRY* GL_ATTACH_SHADER              ) (GLuint program, GLuint shader);
 typedef void   (APIENTRY* GL_DELETE_SHADER              ) (GLuint shader);
+typedef GLint  (APIENTRY* GL_GET_UNIFORM_LOCATION       ) (GLuint program, const char* name);
+typedef void   (APIENTRY* GL_UNIFORM_MATRIX_4FV         ) (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
 
 namespace OpenGL
 {
@@ -72,6 +75,8 @@ namespace OpenGL
 	static GL_GET_SHADER_INFO_LOG         GetShaderInfoLog        ;
 	static GL_ATTACH_SHADER               AttachShader            ;
 	static GL_DELETE_SHADER               DeleteShader            ;
+	static GL_GET_UNIFORM_LOCATION        GetUniformLocation      ;
+	static GL_UNIFORM_MATRIX_4FV          UniformMatrix4fv        ;
 
 
 	static bool LoadOpenGLFunctions()
@@ -141,6 +146,12 @@ namespace OpenGL
 
 		DeleteShader             = (GL_DELETE_SHADER              )(wglGetProcAddress("glDeleteShader"            ));
 		if (!DeleteShader)             return false;
+
+		GetUniformLocation       = (GL_GET_UNIFORM_LOCATION       )(wglGetProcAddress("glGetUniformLocation"      ));
+		if (!GetUniformLocation)       return false;
+
+		UniformMatrix4fv         = (GL_UNIFORM_MATRIX_4FV         )(wglGetProcAddress("glUniformMatrix4fv"        ));
+		if (!UniformMatrix4fv)         return false;
 
 		return true;
 	}

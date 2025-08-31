@@ -47,3 +47,8 @@ bool Shader::CreateShader(void* VertexShaderCode, void* FragmentShaderCode, unsi
 
 	return true;
 }
+
+void Shader::SetUniform_MatrixS4(int32 ShaderId, const char* Name, real32* Matrix)
+{
+	OpenGL::UniformMatrix4fv(OpenGL::GetUniformLocation(ShaderId, Name), 1, GL_FALSE, Matrix);
+}
