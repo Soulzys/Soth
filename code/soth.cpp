@@ -61,35 +61,23 @@ void UpdateGame(GameMemory* Memory)
 		Memory->IsInitialized = true;
 
 		MatrixS4 _M(1.0f);
-		//_M[0][0] = 1; _M[0][1] = 2; _M[0][2] = 4; _M[0][3] = 1;
-		//_M[1][0] = 3; _M[1][1] = 1; _M[1][2] = 5; _M[1][3] = 1;
-		//_M[2][0] = 2; _M[2][1] = 2; _M[2][2] = 1; _M[2][3] = 1;
-		//_M[3][0] = 6; _M[3][1] = 5; _M[3][2] = 3; _M[3][3] = 1;
-
-		// Translation
-		//_M[0][0] = 1; _M[0][1] = 0; _M[0][2] = 0; _M[0][3] = 0;
-		//_M[1][0] = 0; _M[1][1] = 1; _M[1][2] = 0; _M[1][3] = 0;
-		//_M[2][0] = 0; _M[2][1] = 0; _M[2][2] = 1; _M[2][3] = 0;
-		//_M[3][0] = 2; _M[3][1] = 3; _M[3][2] = 0; _M[3][3] = 1;
-
-		// Rotate X
-		_M[0][0] = (real32) cos(-PI32 / 2); _M[0][1] = (real32)sin(-PI32 / 2); _M[0][2] = 0; _M[0][3] = 0;
-		_M[1][0] = (real32)-sin(-PI32 / 2); _M[1][1] = (real32)cos(-PI32 / 2); _M[1][2] = 0; _M[1][3] = 0;
-		_M[2][0] = 0               ; _M[2][1] = 0              ; _M[2][2] = 1; _M[2][3] = 0;
-		_M[3][0] = 0               ; _M[3][1] = 0              ; _M[3][2] = 0; _M[3][3] = 1;
-		
-		//_M.Translate(Vec3(2.0f, 1.0f, 3.0f));
-		//_M.Scale(Vec3(2.0f, 1.0f, 3.0f));
-		//_M.Scale(2.0f);
-
-		Vec3 _V = Vec3(0.0f, 1.0f, 0.0f);
-		_V = _V * _M;
-		DebugLogVector(_V, 1.0f, 3);
-		//DebugLogMatrixS4(_M);
+		_M.Scale(2.0f);
+		MatrixS4 _T(1.f);
+		_M.Transpose();
+		DebugLogMatrixS4(_M);
 	}
 
+	MatrixS4 _Model(1.0f);
+	_Model.Scale(100.0f);
+	MatrixS4 _View(1.0f);
+	MatrixS4 _Projection = GetOrthographicProjectionMatrix(-(real32)g_ClientSize.Width/2, (real32)g_ClientSize.Width/2, -(real32)g_ClientSize.Height/2, (real32)g_ClientSize.Height/2, 0.0f, 100.0f);
+
+	//DebugLogMatrixS4(_Model);
 
 	OpenGL::UseProgram(_GameState->ShaderProgram);
+	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_projection" , _Projection/*.Transpose()*/.GetPointer());
+	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_view"       , _View      /*.Transpose()*/.GetPointer());
+	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_model"      , _Model     /*.Transpose()*/.GetPointer());
 	OpenGL::BindVertexArray(_GameState->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }

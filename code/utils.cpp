@@ -101,13 +101,10 @@ MatrixS4::MatrixS4()
 
 MatrixS4::MatrixS4(real32 N)
 {
-	for (uint8 i = 0; i < 4; i++)
-	{
-		for (uint8 j = 0; j < 4; j++)
-		{
-			M[i][j] = N;
-		}
-	}
+	M[0][0] = N; M[0][1] = 0; M[0][2] = 0; M[0][3] = 0;
+	M[1][0] = 0; M[1][1] = N; M[1][2] = 0; M[1][3] = 0;
+	M[2][0] = 0; M[2][1] = 0; M[2][2] = N; M[2][3] = 0;
+	M[3][0] = 0; M[3][1] = 0; M[3][2] = 0; M[3][3] = 1;
 }
 
 MatrixS4::MatrixS4(const MatrixS4& Ma)
@@ -219,10 +216,9 @@ MatrixS4& MatrixS4::RotateAroundZ(real32 Amount)
 
 MatrixS4& MatrixS4::Scale(real32 Amount)
 {
-	M[0][0] *= Amount; M[0][1] *= Amount; M[0][2] *= Amount; M[0][3] *= Amount; 
-	M[1][0] *= Amount; M[1][1] *= Amount; M[1][2] *= Amount; M[1][3] *= Amount; 
-	M[2][0] *= Amount; M[2][1] *= Amount; M[2][2] *= Amount; M[2][3] *= Amount; 
-	M[3][0] *= Amount; M[3][1] *= Amount; M[3][2] *= Amount; M[3][3] *= Amount; 
+	M[0][0] *= Amount; M[0][1] *= Amount; M[0][2] *= Amount; M[0][3] *= Amount;
+	M[1][0] *= Amount; M[1][1] *= Amount; M[1][2] *= Amount; M[1][3] *= Amount;
+	M[2][0] *= Amount; M[2][1] *= Amount; M[2][2] *= Amount; M[2][3] *= Amount;
 
 	return *this;
 }
@@ -267,4 +263,16 @@ MatrixS4 MatrixS4::Transpose() const
 real32* MatrixS4::GetPointer()
 {
 	return (real32*)(M);
+}
+
+MatrixS4 GetOrthographicProjectionMatrix(real32 Left, real32 Right, real32 Bottom, real32 Top, real32 Near, real32 Far)
+{
+	MatrixS4 _M;
+
+	_M[0][0] = 2 / (Right - Left)                 ;  _M[0][1] = 0                                  ;  _M[0][2] = 0                              ;  _M[0][3] = 0 ;
+	_M[1][0] = 0                                  ;  _M[1][1] = 2 / (Top - Bottom)                 ;  _M[1][2] = 0                              ;  _M[1][3] = 0 ;
+	_M[2][0] = 0                                  ;  _M[2][1] = 0                                  ;  _M[2][2] = -2 / (Far - Near)              ;  _M[2][3] = 0 ;
+	_M[3][0] = -((Right + Left) / (Right - Left)) ;  _M[3][1] = -((Top + Bottom) / (Top - Bottom)) ;  _M[3][2] = -((Far + Near) / (Far - Near)) ;  _M[3][3] = 1 ;
+	
+	return _M;
 }

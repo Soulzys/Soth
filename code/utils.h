@@ -57,4 +57,6 @@
 						 	{0, 0, 0, 1}
 						 };
 	};
+
+	static MatrixS4 GetOrthographicProjectionMatrix(real32 Left, real32 Right, real32 Bottom, real32 Top, real32 Near, real32 Far);
 //}

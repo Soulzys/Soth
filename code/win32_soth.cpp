@@ -1,3 +1,4 @@
+#include "win32_soth.h"
 #include <windows.h>
 #include <gl/gl.h>
 #include <stdint.h>
@@ -8,7 +9,11 @@
  
 */
 
-#define PI32 3.14159265359
+#define PI32                  3.14159265359
+#define WINDOW_WIDTH_DEFAULT  1200
+#define WINDOW_HEIGHT_DEFAULT 800
+
+static Win32_ClientSize g_ClientSize;
 
 typedef int8_t   int8   ;
 typedef int16_t  int16  ;
@@ -23,6 +28,7 @@ typedef float    real32 ;
 typedef double   real64 ;
 
 typedef int32    bool32 ;
+
 
 #include "utils.cpp"
 #include "openglcontroller.cpp"
@@ -102,6 +108,19 @@ static ReadFileResult Win32_ReadFile(const char* Filename)
 //static unsigned int _VAO;
 
 
+
+Win32_ClientSize Win32_GetClientSize(HWND Window)
+{
+	Win32_ClientSize _Result = {};
+	RECT             _R      = {};
+
+	GetClientRect(Window, &_R);
+	_Result.Width  = _R.right - _R.left   ;
+	_Result.Height = _R.top   - _R.bottom ;
+
+	return _Result;
+}
+
 struct DebugFloatingNumber
 {
 	uint64 IntegerPart;
@@ -166,10 +185,12 @@ static void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)
 	real32 _00 = M[0][0];
 	real32 _23 = M[2][3];
 
+	OutputDebugString("------- START ---- DEBUG MATRIX\n");
 	DebugLogVector(Vec3(M[0][0], M[0][1], M[0][2]), M[0][3], Precision, "\t");
 	DebugLogVector(Vec3(M[1][0], M[1][1], M[1][2]), M[1][3], Precision, "\t");
 	DebugLogVector(Vec3(M[2][0], M[2][1], M[2][2]), M[2][3], Precision, "\t");
 	DebugLogVector(Vec3(M[3][0], M[3][1], M[3][2]), M[3][3], Precision, "\t");
+	OutputDebugString("------- END ---- DEBUG MATRIX\n");
 }
 
 static void DebugLogMessage(const char* Message)
@@ -227,6 +248,17 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 				{
 					if (OpenGL::LoadOpenGLFunctions())
 					{
+						RECT _R = {};
+						_R.top = 0;
+						_R.bottom = WINDOW_HEIGHT_DEFAULT;
+						_R.right = WINDOW_WIDTH_DEFAULT;
+						_R.left = 0;
+
+						AdjustWindowRectEx(&_R, WS_OVERLAPPEDWINDOW | WS_VISIBLE, false, 0);
+
+						int _Width = _R.right - _R.left;
+						int _Height = _R.top - _R.bottom;
+
 						// The real window
 						WindowHandle = CreateWindowEx
 						(
@@ -236,14 +268,19 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 							WS_OVERLAPPEDWINDOW | WS_VISIBLE,
 							CW_USEDEFAULT,
 							CW_USEDEFAULT,
-							CW_USEDEFAULT,
-							CW_USEDEFAULT,
+							_R.right - _R.left,
+							_R.bottom - _R.top,
 							0,
 							0,
 							Instance,
 							0
 						);
 						HDC _DeviceContext = GetDC(WindowHandle);
+
+						RECT _ClientRect = {};
+						RECT _WindowRect = {};
+						GetClientRect(WindowHandle, &_ClientRect);
+						GetWindowRect(WindowHandle, &_WindowRect);
 
 						int _PixelAttribs[] =
 						{
@@ -350,6 +387,14 @@ LRESULT CALLBACK Win32_WindowCallback(HWND Window, UINT Message, WPARAM WParam, 
 
 	switch (Message)
 	{
+		case WM_SIZE:
+		{
+			g_ClientSize.Width  = LOWORD(LParam);
+			g_ClientSize.Height = HIWORD(LParam);
+			glViewport(0, 0, g_ClientSize.Width, g_ClientSize.Height);
+			OutputDebugString("--------- I was resized !!\n");
+		} break;
+
 		case WM_CLOSE: 
 		case WM_DESTROY:
 		{
@@ -383,6 +428,10 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 	_WindowClass.lpfnWndProc   = Win32_WindowCallback               ;
 	_WindowClass.hInstance     = Instance                           ;
 	_WindowClass.lpszClassName = "Soth"                             ;
+
+	g_ClientSize = {};
+	g_ClientSize.Width = WINDOW_WIDTH_DEFAULT;
+	g_ClientSize.Height = WINDOW_HEIGHT_DEFAULT;
 
 	if (RegisterClass(&_WindowClass))
 	{
