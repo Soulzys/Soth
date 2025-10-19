@@ -265,6 +265,20 @@ real32* MatrixS4::GetPointer()
 	return (real32*)(M);
 }
 
+MatrixS4& MatrixS4::MoveX(real32 Amount)
+{
+	M[3][0] += Amount;
+	
+	return *this;
+}
+
+MatrixS4& MatrixS4::MoveY(real32 Amount)
+{
+	M[3][1] += Amount;
+
+	return *this;
+}
+
 MatrixS4 GetOrthographicProjectionMatrix(real32 Left, real32 Right, real32 Bottom, real32 Top, real32 Near, real32 Far)
 {
 	MatrixS4 _M;
@@ -276,3 +290,4 @@ MatrixS4 GetOrthographicProjectionMatrix(real32 Left, real32 Right, real32 Botto
 	
 	return _M;
 }
+

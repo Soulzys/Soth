@@ -43,6 +43,8 @@
 		MatrixS4& RotateAroundX(real32 Amount);
 		MatrixS4& RotateAroundY(real32 Amount);
 		MatrixS4& RotateAroundZ(real32 Amount);
+		MatrixS4& MoveX(real32 Amount);
+		MatrixS4& MoveY(real32 Amount);
 		//MatrixS4& Scale(const Vec3& V);
 		MatrixS4& Scale(real32 Amount);
 		MatrixS4& Transpose();

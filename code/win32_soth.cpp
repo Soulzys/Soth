@@ -381,7 +381,7 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 	}
 }
 
-LRESULT CALLBACK Win32_WindowCallback(HWND Window, UINT Message, WPARAM WParam, LPARAM LParam)
+LRESULT CALLBACK Win32WindowCallback(HWND Window, UINT Message, WPARAM WParam, LPARAM LParam)
 {
 	LRESULT _Result = 0;
 
@@ -405,10 +405,15 @@ LRESULT CALLBACK Win32_WindowCallback(HWND Window, UINT Message, WPARAM WParam, 
 		{
 			uint32 _VKCode = (uint32)WParam;
 
-			if (_VKCode == VK_ESCAPE)
-			{
-				g_Running = false;
-			}
+			//if (_VKCode == VK_ESCAPE)
+			//{
+			//	g_Running = false;
+			//}
+
+			//if (_VKCode == 'D')
+			//{
+			//	OutputDebugString("D !\n");
+			//}
 
 		} break;
 
@@ -421,11 +426,57 @@ LRESULT CALLBACK Win32_WindowCallback(HWND Window, UINT Message, WPARAM WParam, 
 	return _Result;
 }
 
+static void Win32ProcessKeyboardMessage(GameKeyState* NewKeyState, KeyState CurrentKeyState)
+{
+	ASSERT(NewKeyState->State != CurrentKeyState);
+
+	NewKeyState->State = CurrentKeyState;
+	NewKeyState->HalfTransitionCount++;
+	OutputDebugString("Key pressed !\n");
+}
+
+static void Win32ProcessPendingMessages(GameInputController* InputController)
+{
+	MSG _Message;
+	while (PeekMessage(&_Message, 0, 0, 0, PM_REMOVE))
+	{
+		switch (_Message.message)
+		{
+			case WM_QUIT:
+			{
+				g_Running = false;
+			} break;
+			case WM_SYSKEYDOWN :
+			case WM_SYSKEYUP   :
+			case WM_KEYDOWN    :
+			case WM_KEYUP      :
+			{
+				uint32   _VKCode           = (uint32)_Message.wParam;
+				KeyState _PreviousKeyState = ((_Message.lParam & (1 << 30)) != 0) ? KeyState::DOWN : KeyState::UP;
+				KeyState _CurrentKeyState  = ((_Message.lParam & (1 << 31)) == 0) ? KeyState::DOWN : KeyState::UP;
+
+				// We're not interested in key repeating itself over and over
+				if (_PreviousKeyState == _CurrentKeyState) break;
+
+				if      (_VKCode == 'A'      ) Win32ProcessKeyboardMessage(&InputController->MoveLeft , _CurrentKeyState);
+				else if (_VKCode == 'D'      ) Win32ProcessKeyboardMessage(&InputController->MoveRight, _CurrentKeyState);
+				else if (_VKCode == VK_ESCAPE) g_Running = false;
+			} break;
+
+			default:
+			{
+				TranslateMessage(&_Message);
+				DispatchMessage (&_Message);
+			} break;
+		}
+	}
+}
+
 int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, int CmdShow)
 {
 	WNDCLASS _WindowClass      = {}                                 ;
 	_WindowClass.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW ;
-	_WindowClass.lpfnWndProc   = Win32_WindowCallback               ;
+	_WindowClass.lpfnWndProc   = Win32WindowCallback                ;
 	_WindowClass.hInstance     = Instance                           ;
 	_WindowClass.lpszClassName = "Soth"                             ;
 
@@ -444,28 +495,30 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 			_GameMemory.PermanentStorageSize = MEGABYTES(64);
 			_GameMemory.PermanentStorage = 	VirtualAlloc(0, _GameMemory.PermanentStorageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
+			GameInputController  _GameInputs[2] = {};
+			GameInputController* _OldGameInput  = &_GameInputs[0];
+			GameInputController* _NewGameInput  = &_GameInputs[1];
+
 			g_Running = true;
 
 			while (g_Running)
 			{
-				MSG _Message;
-				while (PeekMessage(&_Message, 0, 0, 0, PM_REMOVE))
-				{
-					if (_Message.message == WM_QUIT)
-					{
-						g_Running = false;
-					}
+				*_NewGameInput = {}; // Reset to 0
+				_NewGameInput->CopyState(_OldGameInput);
 
-					glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-					glClear(GL_COLOR_BUFFER_BIT);
+				Win32ProcessPendingMessages(_NewGameInput);
 
-					UpdateGame(&_GameMemory);
+				glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+				glClear(GL_COLOR_BUFFER_BIT);
 
-					SwapBuffers(_DC);
+				UpdateGame(&_GameMemory, _NewGameInput);
 
-					TranslateMessage(&_Message);
-					DispatchMessage(&_Message);
-				}
+				SwapBuffers(_DC);
+
+				// Swap input controllers
+				GameInputController* _Temp = _NewGameInput;
+				_NewGameInput = _OldGameInput;
+				_OldGameInput = _Temp;
 			}
 		}
 		else
