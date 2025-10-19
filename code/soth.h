@@ -38,6 +38,7 @@ struct GameState
 	uint16 VBO           ;
 	uint16 VAO           ;
 	uint16 ShaderProgram ;
+	MatrixS4 PlayerPos   ;
 };
 
 struct GameMemory

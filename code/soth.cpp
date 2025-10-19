@@ -68,13 +68,16 @@ void UpdateGame(GameMemory* Memory, GameInputController* Input)
 	if (!Memory->IsInitialized)
 	{
 		LoadShaders(_GameState);
-		Memory->IsInitialized = true;
 
-		MatrixS4 _M(1.0f);
-		_M.Scale(2.0f);
-		MatrixS4 _T(1.f);
-		_M.Transpose();
-		DebugLogMatrixS4(_M);
+		_GameState->PlayerPos = MatrixS4(1.f);
+
+		//MatrixS4 _M(1.0f);
+		//_M.Scale(2.0f);
+		//MatrixS4 _T(1.f);
+		//_M.Transpose();
+		//DebugLogMatrixS4(_M);
+
+		Memory->IsInitialized = true;
 	}
 
 
@@ -83,21 +86,21 @@ void UpdateGame(GameMemory* Memory, GameInputController* Input)
 	//
 	if (Input->MoveLeft.State == DOWN)
 	{
-		OutputDebugString("To the leeeeeeeeeft !\n");
+		_GameState->PlayerPos.MoveX(-1.f);
 	}
 	if (Input->MoveRight.State == DOWN)
 	{
-		OutputDebugString("To the riiiiiiiight !\n");
+		_GameState->PlayerPos.MoveX(1.f);
 	}
 
 	MatrixS4 _Model(1.0f);
 	_Model.Scale(100.0f);
-	MatrixS4 _View(1.0f);
 	MatrixS4 _Projection = GetOrthographicProjectionMatrix(-(real32)g_ClientSize.Width/2, (real32)g_ClientSize.Width/2, -(real32)g_ClientSize.Height/2, (real32)g_ClientSize.Height/2, 0.0f, 100.0f);
+	
 
 	OpenGL::UseProgram(_GameState->ShaderProgram);
 	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_projection" , _Projection/*.Transpose()*/.GetPointer());
-	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_view"       , _View      /*.Transpose()*/.GetPointer());
+	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_view"       , _GameState->PlayerPos      /*.Transpose()*/.GetPointer());
 	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_model"      , _Model     /*.Transpose()*/.GetPointer());
 	OpenGL::BindVertexArray(_GameState->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
