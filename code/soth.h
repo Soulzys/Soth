@@ -136,14 +136,13 @@ struct GameInputController
 {
 	union
 	{
-		GameKeyState Keys[4];
+		GameKeyState Keys[3];
 
 		struct
 		{
 			GameKeyState MoveLeft  ;
 			GameKeyState MoveRight ;
-			GameKeyState MoveUp    ;
-			GameKeyState MoveDown  ;
+			GameKeyState Jump      ;
 		};
 	};
 

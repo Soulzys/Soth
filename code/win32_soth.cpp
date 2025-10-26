@@ -31,7 +31,6 @@ typedef int32    bool32 ;
 
 
 #include "utils.cpp"
-//#include "openglcontroller.cpp"
 #include "shader.cpp"
 #include "soth.cpp"
 
@@ -547,6 +546,7 @@ static void Win32ProcessPendingMessages(GameInputController* InputController)
 
 				if      (_VKCode == 'A'      ) Win32ProcessKeyboardMessage(&InputController->MoveLeft , _CurrentKeyState);
 				else if (_VKCode == 'D'      ) Win32ProcessKeyboardMessage(&InputController->MoveRight, _CurrentKeyState);
+				else if (_VKCode == VK_SPACE ) Win32ProcessKeyboardMessage(&InputController->Jump     , _CurrentKeyState);
 				else if (_VKCode == VK_ESCAPE) g_Running = false;
 			} break;
 

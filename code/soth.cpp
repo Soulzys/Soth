@@ -93,6 +93,10 @@ void UpdateGame(GameMemory* Memory, GameInputController* Input)
 	{
 		_GameState->PlayerPos.MoveX(1.f);
 	}
+	if (Input->Jump.State == DOWN)
+	{
+		_GameState->PlayerPos.MoveY(3.f);
+	}
 
 	MatrixS4 _Model(1.0f);
 	_Model.Scale(100.0f);
