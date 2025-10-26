@@ -201,73 +201,73 @@ internal void DebugLogMessage(const char* Message)
 
 
 
-internal bool Win32LoadOpenGLFunctions(OpenGLController* OpenGLController)
+internal bool Win32LoadOpenGLFunctions(OpenGL* OpenGL)
 {
-	OpenGLController->GenVertexArrays               = (GL_GEN_VERTEX_ARRAYS          )(wglGetProcAddress("glGenVertexArrays"         ));
-	if (!OpenGLController->GenVertexArrays)          return false;
+	OpenGL->GenVertexArrays               = (GL_GEN_VERTEX_ARRAYS          )(wglGetProcAddress("glGenVertexArrays"         ));
+	if (!OpenGL->GenVertexArrays)          return false;
 
-	OpenGLController->DeleteVertexArrays            = (GL_DELETE_VERTEX_ARRAYS       )(wglGetProcAddress("glDeleteVertexArrays"      ));
-	if (!OpenGLController->DeleteVertexArrays)       return false;
+	OpenGL->DeleteVertexArrays            = (GL_DELETE_VERTEX_ARRAYS       )(wglGetProcAddress("glDeleteVertexArrays"      ));
+	if (!OpenGL->DeleteVertexArrays)       return false;
 
-	OpenGLController->GenBuffers                    = (GL_GEN_BUFFERS                )(wglGetProcAddress("glGenBuffers"              ));
-	if (!OpenGLController->GenBuffers)               return false;
+	OpenGL->GenBuffers                    = (GL_GEN_BUFFERS                )(wglGetProcAddress("glGenBuffers"              ));
+	if (!OpenGL->GenBuffers)               return false;
 
-	OpenGLController->DeleteBuffers                 = (GL_DELETE_BUFFERS             )(wglGetProcAddress("glDeleteBuffers"           ));
-	if (!OpenGLController->DeleteBuffers)            return false;
+	OpenGL->DeleteBuffers                 = (GL_DELETE_BUFFERS             )(wglGetProcAddress("glDeleteBuffers"           ));
+	if (!OpenGL->DeleteBuffers)            return false;
 
-	OpenGLController->BindVertexArray               = (GL_BIND_VERTEX_ARRAY          )(wglGetProcAddress("glBindVertexArray"         ));
-	if (!OpenGLController->BindVertexArray)          return false;
+	OpenGL->BindVertexArray               = (GL_BIND_VERTEX_ARRAY          )(wglGetProcAddress("glBindVertexArray"         ));
+	if (!OpenGL->BindVertexArray)          return false;
 
-	OpenGLController->BindBuffer                    = (GL_BIND_BUFFER                )(wglGetProcAddress("glBindBuffer"              ));
-	if (!OpenGLController->BindBuffer)               return false;
+	OpenGL->BindBuffer                    = (GL_BIND_BUFFER                )(wglGetProcAddress("glBindBuffer"              ));
+	if (!OpenGL->BindBuffer)               return false;
 
-	OpenGLController->BufferData                    = (GL_BUFFER_DATA                )(wglGetProcAddress("glBufferData"              ));
-	if (!OpenGLController->BufferData)               return false;
+	OpenGL->BufferData                    = (GL_BUFFER_DATA                )(wglGetProcAddress("glBufferData"              ));
+	if (!OpenGL->BufferData)               return false;
 
-	OpenGLController->VertexAttribPointer           = (GL_VERTEX_ATTRIB_POINTER      )(wglGetProcAddress("glVertexAttribPointer"     ));
-	if (!OpenGLController->VertexAttribPointer)      return false;
+	OpenGL->VertexAttribPointer           = (GL_VERTEX_ATTRIB_POINTER      )(wglGetProcAddress("glVertexAttribPointer"     ));
+	if (!OpenGL->VertexAttribPointer)      return false;
 
-	OpenGLController->EnableVertexAttribArray       = (GL_ENABLE_VERTEX_ATTRIB_ARRAY )(wglGetProcAddress("glEnableVertexAttribArray" ));
-	if (!OpenGLController->EnableVertexAttribArray)  return false;
+	OpenGL->EnableVertexAttribArray       = (GL_ENABLE_VERTEX_ATTRIB_ARRAY )(wglGetProcAddress("glEnableVertexAttribArray" ));
+	if (!OpenGL->EnableVertexAttribArray)  return false;
 
-	OpenGLController->CreateShader                  = (GL_CREATE_SHADER              )(wglGetProcAddress("glCreateShader"            ));
-	if (!OpenGLController->CreateShader)             return false;
+	OpenGL->CreateShader                  = (GL_CREATE_SHADER              )(wglGetProcAddress("glCreateShader"            ));
+	if (!OpenGL->CreateShader)             return false;
 
-	OpenGLController->CreateProgram                 = (GL_CREATE_PROGRAM             )(wglGetProcAddress("glCreateProgram"           ));
-	if (!OpenGLController->CreateProgram)            return false;
+	OpenGL->CreateProgram                 = (GL_CREATE_PROGRAM             )(wglGetProcAddress("glCreateProgram"           ));
+	if (!OpenGL->CreateProgram)            return false;
 
-	OpenGLController->DeleteProgram                 = (GL_DELETE_PROGRAM             )(wglGetProcAddress("glDeleteProgram"           ));
-	if (!OpenGLController->DeleteProgram)            return false;
+	OpenGL->DeleteProgram                 = (GL_DELETE_PROGRAM             )(wglGetProcAddress("glDeleteProgram"           ));
+	if (!OpenGL->DeleteProgram)            return false;
 
-	OpenGLController->LinkProgram                   = (GL_LINK_PROGRAM               )(wglGetProcAddress("glLinkProgram"             ));
-	if (!OpenGLController->LinkProgram)              return false;
+	OpenGL->LinkProgram                   = (GL_LINK_PROGRAM               )(wglGetProcAddress("glLinkProgram"             ));
+	if (!OpenGL->LinkProgram)              return false;
 
-	OpenGLController->UseProgram                    = (GL_USE_PROGRAM                )(wglGetProcAddress("glUseProgram"              ));
-	if (!OpenGLController->UseProgram)               return false;
+	OpenGL->UseProgram                    = (GL_USE_PROGRAM                )(wglGetProcAddress("glUseProgram"              ));
+	if (!OpenGL->UseProgram)               return false;
 
-	OpenGLController->ShaderSource                  = (GL_SHADER_SOURCE              )(wglGetProcAddress("glShaderSource"            ));
-	if (!OpenGLController->ShaderSource)             return false;
+	OpenGL->ShaderSource                  = (GL_SHADER_SOURCE              )(wglGetProcAddress("glShaderSource"            ));
+	if (!OpenGL->ShaderSource)             return false;
 
-	OpenGLController->CompileShader                 = (GL_COMPILE_SHADER             )(wglGetProcAddress("glCompileShader"           ));
-	if (!OpenGLController->CompileShader)            return false;
+	OpenGL->CompileShader                 = (GL_COMPILE_SHADER             )(wglGetProcAddress("glCompileShader"           ));
+	if (!OpenGL->CompileShader)            return false;
 
-	OpenGLController->GetShaderiv                   = (GL_GET_SHADERIV               )(wglGetProcAddress("glGetShaderiv"             ));
-	if (!OpenGLController->GetShaderiv)              return false;
+	OpenGL->GetShaderiv                   = (GL_GET_SHADERIV               )(wglGetProcAddress("glGetShaderiv"             ));
+	if (!OpenGL->GetShaderiv)              return false;
 
-	OpenGLController->GetShaderInfoLog              = (GL_GET_SHADER_INFO_LOG        )(wglGetProcAddress("glGetShaderInfoLog"        ));
-	if (!OpenGLController->GetShaderInfoLog)         return false;
+	OpenGL->GetShaderInfoLog              = (GL_GET_SHADER_INFO_LOG        )(wglGetProcAddress("glGetShaderInfoLog"        ));
+	if (!OpenGL->GetShaderInfoLog)         return false;
 
-	OpenGLController->AttachShader                  = (GL_ATTACH_SHADER              )(wglGetProcAddress("glAttachShader"            ));
-	if (!OpenGLController->AttachShader)             return false;
+	OpenGL->AttachShader                  = (GL_ATTACH_SHADER              )(wglGetProcAddress("glAttachShader"            ));
+	if (!OpenGL->AttachShader)             return false;
 
-	OpenGLController->DeleteShader                  = (GL_DELETE_SHADER              )(wglGetProcAddress("glDeleteShader"            ));
-	if (!OpenGLController->DeleteShader)             return false;
+	OpenGL->DeleteShader                  = (GL_DELETE_SHADER              )(wglGetProcAddress("glDeleteShader"            ));
+	if (!OpenGL->DeleteShader)             return false;
 
-	OpenGLController->GetUniformLocation            = (GL_GET_UNIFORM_LOCATION       )(wglGetProcAddress("glGetUniformLocation"      ));
-	if (!OpenGLController->GetUniformLocation)       return false;
+	OpenGL->GetUniformLocation            = (GL_GET_UNIFORM_LOCATION       )(wglGetProcAddress("glGetUniformLocation"      ));
+	if (!OpenGL->GetUniformLocation)       return false;
 
-	OpenGLController->UniformMatrix4fv              = (GL_UNIFORM_MATRIX_4FV         )(wglGetProcAddress("glUniformMatrix4fv"        ));
-	if (!OpenGLController->UniformMatrix4fv)         return false;
+	OpenGL->UniformMatrix4fv              = (GL_UNIFORM_MATRIX_4FV         )(wglGetProcAddress("glUniformMatrix4fv"        ));
+	if (!OpenGL->UniformMatrix4fv)         return false;
 
 	return true;
 }
@@ -275,7 +275,7 @@ internal bool Win32LoadOpenGLFunctions(OpenGLController* OpenGLController)
 
 
 // >TOTHINK: returning WindowHandle via the function's return value rather than via a out parameter ? 
-internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle, OpenGLController* OpenGLController)
+internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle, OpenGL* OpenGL)
 {
 	if (!Window) return false;
 
@@ -330,7 +330,7 @@ internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& Windo
 					}
 
 					//if (OpenGL::LoadOpenGLFunctions())
-					if (Win32LoadOpenGLFunctions(OpenGLController))
+					if (Win32LoadOpenGLFunctions(OpenGL))
 					{
 						//OpenGL::LoadOpenGLFunctions();
 						RECT _R = {};
@@ -574,16 +574,16 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 	if (RegisterClass(&_WindowClass))
 	{
 		HWND _WindowHandle = nullptr;
-		OpenGLController _OpenGLController = {};
+		OpenGL _OpenGL = {};
 
-		if (Win32_InitOpenGL(Instance, &_WindowClass, _WindowHandle, &_OpenGLController))
+		if (Win32_InitOpenGL(Instance, &_WindowClass, _WindowHandle, &_OpenGL))
 		{
 			HDC _DC = GetDC(_WindowHandle);
 
 			GameMemory _GameMemory = {};
 			_GameMemory.PermanentStorageSize = MEGABYTES(64);
 			_GameMemory.PermanentStorage = 	VirtualAlloc(0, _GameMemory.PermanentStorageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-			_GameMemory.OpenGLController = &_OpenGLController;
+			_GameMemory.OpenGL = &_OpenGL;
 
 			GameInputController  _GameInputs[2] = {};
 			GameInputController* _OldGameInput  = &_GameInputs[0];

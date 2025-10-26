@@ -82,7 +82,7 @@ typedef void   (APIENTRY* GL_DELETE_SHADER              ) (GLuint shader);
 typedef GLint  (APIENTRY* GL_GET_UNIFORM_LOCATION       ) (GLuint program, const char* name);
 typedef void   (APIENTRY* GL_UNIFORM_MATRIX_4FV         ) (GLint location, GLsizei count, GLboolean transpose, const GLfloat* value);
 
-struct OpenGLController
+struct OpenGL
 {
 	GL_GEN_VERTEX_ARRAYS           GenVertexArrays         ;
 	GL_DELETE_VERTEX_ARRAYS        DeleteVertexArrays      ;
@@ -123,7 +123,7 @@ struct GameMemory
 	uint64 PermanentStorageSize ;
 	void*  PermanentStorage     ;
 
-	OpenGLController* OpenGLController;
+	OpenGL* OpenGL;
 };
 
 struct GameKeyState
