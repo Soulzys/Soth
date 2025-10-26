@@ -1,6 +1,7 @@
 #include "shader.h"
+#include "soth.h"
 
-bool Shader::CreateShader(void* VertexShaderCode, void* FragmentShaderCode, unsigned int& ShaderId)
+bool Shader::CreateShader(void* VertexShaderCode, void* FragmentShaderCode, unsigned int& ShaderId, OpenGLController* OpenGLController)
 {
 	if (!VertexShaderCode || !FragmentShaderCode) return false;
 
@@ -8,47 +9,47 @@ bool Shader::CreateShader(void* VertexShaderCode, void* FragmentShaderCode, unsi
 	const int16 _LogsSize = 512;
 	char _Logs[_LogsSize];
 
-	unsigned int          _VertexShader = OpenGL::CreateShader(GL_VERTEX_SHADER);
-	OpenGL::ShaderSource (_VertexShader, 1, &(const char*)VertexShaderCode, nullptr);
-	OpenGL::CompileShader(_VertexShader);
-	OpenGL::GetShaderiv  (_VertexShader, GL_COMPILE_STATUS, &_HasSucceeded);
+	unsigned int          _VertexShader = OpenGLController->CreateShader(GL_VERTEX_SHADER);
+	OpenGLController->ShaderSource (_VertexShader, 1, &(const char*)VertexShaderCode, nullptr);
+	OpenGLController->CompileShader(_VertexShader);
+	OpenGLController->GetShaderiv  (_VertexShader, GL_COMPILE_STATUS, &_HasSucceeded);
 	if (!_HasSucceeded)
 	{
-		OpenGL::GetShaderInfoLog(_VertexShader, _LogsSize, nullptr, _Logs);
+		OpenGLController->GetShaderInfoLog(_VertexShader, _LogsSize, nullptr, _Logs);
 		DebugLogMessage("ERROR: -------- SHADER:VERTEX:COMPILATION_FAILED\n");
 		DebugLogMessage(_Logs);
 	}
 
-	unsigned int          _FragmentShader = OpenGL::CreateShader(GL_FRAGMENT_SHADER);
-	OpenGL::ShaderSource (_FragmentShader, 1, &(const char*)FragmentShaderCode, nullptr);
-	OpenGL::CompileShader(_FragmentShader);
-	OpenGL::GetShaderiv  (_FragmentShader, GL_COMPILE_STATUS, &_HasSucceeded);
+	unsigned int          _FragmentShader = OpenGLController->CreateShader(GL_FRAGMENT_SHADER);
+	OpenGLController->ShaderSource (_FragmentShader, 1, &(const char*)FragmentShaderCode, nullptr);
+	OpenGLController->CompileShader(_FragmentShader);
+	OpenGLController->GetShaderiv  (_FragmentShader, GL_COMPILE_STATUS, &_HasSucceeded);
 	if (!_HasSucceeded)
 	{
-		OpenGL::GetShaderInfoLog(_FragmentShader, _LogsSize, nullptr, _Logs);
+		OpenGLController->GetShaderInfoLog(_FragmentShader, _LogsSize, nullptr, _Logs);
 		DebugLogMessage("ERROR: -------- SHADER:FRAGMENT:COMPILATION_FAILED\n");
 		DebugLogMessage(_Logs);
 	}
 
-	ShaderId = OpenGL::CreateProgram();
-	OpenGL::AttachShader(ShaderId, _VertexShader);
-	OpenGL::AttachShader(ShaderId, _FragmentShader);
-	OpenGL::LinkProgram (ShaderId);
-	OpenGL::GetShaderiv (ShaderId, GL_LINK_STATUS, &_HasSucceeded);
+	ShaderId = OpenGLController->CreateProgram();
+	OpenGLController->AttachShader(ShaderId, _VertexShader);
+	OpenGLController->AttachShader(ShaderId, _FragmentShader);
+	OpenGLController->LinkProgram (ShaderId);
+	OpenGLController->GetShaderiv (ShaderId, GL_LINK_STATUS, &_HasSucceeded);
 	if (!_HasSucceeded)
 	{
-		OpenGL::GetShaderInfoLog(ShaderId, _LogsSize, nullptr, _Logs);
+		OpenGLController->GetShaderInfoLog(ShaderId, _LogsSize, nullptr, _Logs);
 		DebugLogMessage("ERROR: -------- SHADER:PROGRAM:LINKING_FAILED\n");
 		DebugLogMessage(_Logs);
 	}
 
-	OpenGL::DeleteShader(_VertexShader);
-	OpenGL::DeleteShader(_FragmentShader);
+	OpenGLController->DeleteShader(_VertexShader);
+	OpenGLController->DeleteShader(_FragmentShader);
 
 	return true;
 }
 
-void Shader::SetUniform_MatrixS4(int32 ShaderId, const char* Name, real32* Matrix)
+void Shader::SetUniform_MatrixS4(int32 ShaderId, const char* Name, real32* Matrix, OpenGLController* OpenGLController)
 {
-	OpenGL::UniformMatrix4fv(OpenGL::GetUniformLocation(ShaderId, Name), 1, GL_FALSE, Matrix);
+	OpenGLController->UniformMatrix4fv(OpenGLController->GetUniformLocation(ShaderId, Name), 1, GL_FALSE, Matrix);
 }

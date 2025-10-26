@@ -25,8 +25,8 @@
 // From glext.h
 //
 // Required functions to initialize OpengGL > 3.0
-typedef BOOL   (WINAPI*   WGL_CHOOSE_PIXEL_FORMAT_ARB   ) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
-typedef HGLRC  (WINAPI*   WGL_CREATE_CONTEXT_ATTRIBS_ARB) (HDC hDC, HGLRC hShareContext, const int* attribList);
+//typedef BOOL   (WINAPI*   WGL_CHOOSE_PIXEL_FORMAT_ARB   ) (HDC hdc, const int* piAttribIList, const FLOAT* pfAttribFList, UINT nMaxFormats, int* piFormats, UINT* nNumFormats);
+//typedef HGLRC  (WINAPI*   WGL_CREATE_CONTEXT_ATTRIBS_ARB) (HDC hDC, HGLRC hShareContext, const int* attribList);
 // Required functions for the game proper
 typedef void   (APIENTRY* GL_GEN_VERTEX_ARRAYS          ) (GLsizei n, GLuint* arrays);
 typedef void   (APIENTRY* GL_DELETE_VERTEX_ARRAYS       ) (GLsizei n, const GLuint* arrays);
@@ -53,8 +53,8 @@ typedef void   (APIENTRY* GL_UNIFORM_MATRIX_4FV         ) (GLint location, GLsiz
 
 namespace OpenGL
 {
-	static WGL_CHOOSE_PIXEL_FORMAT_ARB    ChoosePixelFormatARB    ;
-	static WGL_CREATE_CONTEXT_ATTRIBS_ARB CreateContextAttribsARB ;
+	//static WGL_CHOOSE_PIXEL_FORMAT_ARB    ChoosePixelFormatARB    ;
+	//static WGL_CREATE_CONTEXT_ATTRIBS_ARB CreateContextAttribsARB ;
 	static GL_GEN_VERTEX_ARRAYS           GenVertexArrays         ;
 	static GL_DELETE_VERTEX_ARRAYS        DeleteVertexArrays      ;
 	static GL_GEN_BUFFERS                 GenBuffers              ;
@@ -81,14 +81,14 @@ namespace OpenGL
 
 	static bool LoadOpenGLFunctions()
 	{
-		ChoosePixelFormatARB     = (WGL_CHOOSE_PIXEL_FORMAT_ARB   )(wglGetProcAddress("wglChoosePixelFormatARB"   ));
-		if (!ChoosePixelFormatARB)     return false;
-
-		CreateContextAttribsARB  = (WGL_CREATE_CONTEXT_ATTRIBS_ARB)(wglGetProcAddress("wglCreateContextAttribsARB"));
-		if (!CreateContextAttribsARB)  return false;
-
-		GenVertexArrays          = (GL_GEN_VERTEX_ARRAYS          )(wglGetProcAddress("glGenVertexArrays"         ));
-		if (!GenVertexArrays)          return false;
+		//ChoosePixelFormatARB     = (WGL_CHOOSE_PIXEL_FORMAT_ARB   )(wglGetProcAddress("wglChoosePixelFormatARB"   ));
+		//if (!ChoosePixelFormatARB)     return false;
+		//
+		//CreateContextAttribsARB  = (WGL_CREATE_CONTEXT_ATTRIBS_ARB)(wglGetProcAddress("wglCreateContextAttribsARB"));
+		//if (!CreateContextAttribsARB)  return false;
+		//
+		//GenVertexArrays          = (GL_GEN_VERTEX_ARRAYS          )(wglGetProcAddress("glGenVertexArrays"         ));
+		//if (!GenVertexArrays)          return false;
 
 		DeleteVertexArrays       = (GL_DELETE_VERTEX_ARRAYS       )(wglGetProcAddress("glDeleteVertexArrays"      ));
 		if (!DeleteVertexArrays)       return false;

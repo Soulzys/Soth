@@ -12,7 +12,7 @@ void GameInputController::CopyState(GameInputController* Input)
 	}
 }
 
-void LoadShaders(GameState* State)
+void LoadShaders(GameState* State, OpenGLController* OpenGLController)
 {
 	if (!State) return;
 
@@ -23,7 +23,7 @@ void LoadShaders(GameState* State)
 	ReadFileResult _FragmentShaderFile = Win32_ReadFile(_FragmentShaderPath);
 
 	unsigned int _shaderProgram;
-	Shader::CreateShader(_VertexShaderFile.Content, _FragmentShaderFile.Content, _shaderProgram);
+	Shader::CreateShader(_VertexShaderFile.Content, _FragmentShaderFile.Content, _shaderProgram, OpenGLController);
 
 	// TODO: need to handle this
 	//Util_FreeFileMemory(_VertexShaderFile.Content);
@@ -41,18 +41,19 @@ void LoadShaders(GameState* State)
 	unsigned int _VBO;
 	unsigned int _VAO;
 
-	OpenGL::GenVertexArrays(1, &_VAO);
-	OpenGL::GenBuffers(1, &_VBO);
-	OpenGL::BindVertexArray(_VAO);
+	//OpenGL::GenVertexArrays(1, &_VAO);
+	OpenGLController->GenVertexArrays(1, &_VAO);
+	OpenGLController->GenBuffers(1, &_VBO);
+	OpenGLController->BindVertexArray(_VAO);
 
-	OpenGL::BindBuffer(GL_ARRAY_BUFFER, _VBO);
-	OpenGL::BufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW);
+	OpenGLController->BindBuffer(GL_ARRAY_BUFFER, _VBO);
+	OpenGLController->BufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices, GL_STATIC_DRAW);
 
-	OpenGL::VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-	OpenGL::EnableVertexAttribArray(0);
+	OpenGLController->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	OpenGLController->EnableVertexAttribArray(0);
 
-	OpenGL::BindBuffer(GL_ARRAY_BUFFER, 0);
-	OpenGL::BindVertexArray(0);
+	OpenGLController->BindBuffer(GL_ARRAY_BUFFER, 0);
+	OpenGLController->BindVertexArray(0);
 
 	State->VBO           = (uint16)_VBO;
 	State->VAO           = (uint16)_VAO;
@@ -67,7 +68,7 @@ void UpdateGame(GameMemory* Memory, GameInputController* Input)
 
 	if (!Memory->IsInitialized)
 	{
-		LoadShaders(_GameState);
+		LoadShaders(_GameState, Memory->OpenGLController);
 
 		_GameState->PlayerPos = MatrixS4(1.f);
 
@@ -98,11 +99,11 @@ void UpdateGame(GameMemory* Memory, GameInputController* Input)
 	MatrixS4 _Projection = GetOrthographicProjectionMatrix(-(real32)g_ClientSize.Width/2, (real32)g_ClientSize.Width/2, -(real32)g_ClientSize.Height/2, (real32)g_ClientSize.Height/2, 0.0f, 100.0f);
 	
 
-	OpenGL::UseProgram(_GameState->ShaderProgram);
-	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_projection" , _Projection/*.Transpose()*/.GetPointer());
-	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_view"       , _GameState->PlayerPos      /*.Transpose()*/.GetPointer());
-	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_model"      , _Model     /*.Transpose()*/.GetPointer());
-	OpenGL::BindVertexArray(_GameState->VAO);
+	Memory->OpenGLController->UseProgram(_GameState->ShaderProgram);
+	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_projection" , _Projection/*.Transpose()*/.GetPointer(), Memory->OpenGLController);
+	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_view"       , _GameState->PlayerPos      /*.Transpose()*/.GetPointer(), Memory->OpenGLController);
+	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_model"      , _Model     /*.Transpose()*/.GetPointer(), Memory->OpenGLController);
+	Memory->OpenGLController->BindVertexArray(_GameState->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 

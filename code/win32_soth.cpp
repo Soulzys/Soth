@@ -31,7 +31,7 @@ typedef int32    bool32 ;
 
 
 #include "utils.cpp"
-#include "openglcontroller.cpp"
+//#include "openglcontroller.cpp"
 #include "shader.cpp"
 #include "soth.cpp"
 
@@ -180,7 +180,7 @@ static void DebugLogVector(const Vec3& V, real32 W, uint8 Precision, const char*
 	//OutputDebugString(_tBuffer);
 }
 
-static void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)
+internal void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)
 {
 	real32 _00 = M[0][0];
 	real32 _23 = M[2][3];
@@ -193,7 +193,7 @@ static void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)
 	OutputDebugString("------- END ---- DEBUG MATRIX\n");
 }
 
-static void DebugLogMessage(const char* Message)
+internal void DebugLogMessage(const char* Message)
 {
 	OutputDebugString(Message);
 }
@@ -201,10 +201,81 @@ static void DebugLogMessage(const char* Message)
 
 
 
+internal bool Win32LoadOpenGLFunctions(OpenGLController* OpenGLController)
+{
+	OpenGLController->GenVertexArrays               = (GL_GEN_VERTEX_ARRAYS          )(wglGetProcAddress("glGenVertexArrays"         ));
+	if (!OpenGLController->GenVertexArrays)          return false;
+
+	OpenGLController->DeleteVertexArrays            = (GL_DELETE_VERTEX_ARRAYS       )(wglGetProcAddress("glDeleteVertexArrays"      ));
+	if (!OpenGLController->DeleteVertexArrays)       return false;
+
+	OpenGLController->GenBuffers                    = (GL_GEN_BUFFERS                )(wglGetProcAddress("glGenBuffers"              ));
+	if (!OpenGLController->GenBuffers)               return false;
+
+	OpenGLController->DeleteBuffers                 = (GL_DELETE_BUFFERS             )(wglGetProcAddress("glDeleteBuffers"           ));
+	if (!OpenGLController->DeleteBuffers)            return false;
+
+	OpenGLController->BindVertexArray               = (GL_BIND_VERTEX_ARRAY          )(wglGetProcAddress("glBindVertexArray"         ));
+	if (!OpenGLController->BindVertexArray)          return false;
+
+	OpenGLController->BindBuffer                    = (GL_BIND_BUFFER                )(wglGetProcAddress("glBindBuffer"              ));
+	if (!OpenGLController->BindBuffer)               return false;
+
+	OpenGLController->BufferData                    = (GL_BUFFER_DATA                )(wglGetProcAddress("glBufferData"              ));
+	if (!OpenGLController->BufferData)               return false;
+
+	OpenGLController->VertexAttribPointer           = (GL_VERTEX_ATTRIB_POINTER      )(wglGetProcAddress("glVertexAttribPointer"     ));
+	if (!OpenGLController->VertexAttribPointer)      return false;
+
+	OpenGLController->EnableVertexAttribArray       = (GL_ENABLE_VERTEX_ATTRIB_ARRAY )(wglGetProcAddress("glEnableVertexAttribArray" ));
+	if (!OpenGLController->EnableVertexAttribArray)  return false;
+
+	OpenGLController->CreateShader                  = (GL_CREATE_SHADER              )(wglGetProcAddress("glCreateShader"            ));
+	if (!OpenGLController->CreateShader)             return false;
+
+	OpenGLController->CreateProgram                 = (GL_CREATE_PROGRAM             )(wglGetProcAddress("glCreateProgram"           ));
+	if (!OpenGLController->CreateProgram)            return false;
+
+	OpenGLController->DeleteProgram                 = (GL_DELETE_PROGRAM             )(wglGetProcAddress("glDeleteProgram"           ));
+	if (!OpenGLController->DeleteProgram)            return false;
+
+	OpenGLController->LinkProgram                   = (GL_LINK_PROGRAM               )(wglGetProcAddress("glLinkProgram"             ));
+	if (!OpenGLController->LinkProgram)              return false;
+
+	OpenGLController->UseProgram                    = (GL_USE_PROGRAM                )(wglGetProcAddress("glUseProgram"              ));
+	if (!OpenGLController->UseProgram)               return false;
+
+	OpenGLController->ShaderSource                  = (GL_SHADER_SOURCE              )(wglGetProcAddress("glShaderSource"            ));
+	if (!OpenGLController->ShaderSource)             return false;
+
+	OpenGLController->CompileShader                 = (GL_COMPILE_SHADER             )(wglGetProcAddress("glCompileShader"           ));
+	if (!OpenGLController->CompileShader)            return false;
+
+	OpenGLController->GetShaderiv                   = (GL_GET_SHADERIV               )(wglGetProcAddress("glGetShaderiv"             ));
+	if (!OpenGLController->GetShaderiv)              return false;
+
+	OpenGLController->GetShaderInfoLog              = (GL_GET_SHADER_INFO_LOG        )(wglGetProcAddress("glGetShaderInfoLog"        ));
+	if (!OpenGLController->GetShaderInfoLog)         return false;
+
+	OpenGLController->AttachShader                  = (GL_ATTACH_SHADER              )(wglGetProcAddress("glAttachShader"            ));
+	if (!OpenGLController->AttachShader)             return false;
+
+	OpenGLController->DeleteShader                  = (GL_DELETE_SHADER              )(wglGetProcAddress("glDeleteShader"            ));
+	if (!OpenGLController->DeleteShader)             return false;
+
+	OpenGLController->GetUniformLocation            = (GL_GET_UNIFORM_LOCATION       )(wglGetProcAddress("glGetUniformLocation"      ));
+	if (!OpenGLController->GetUniformLocation)       return false;
+
+	OpenGLController->UniformMatrix4fv              = (GL_UNIFORM_MATRIX_4FV         )(wglGetProcAddress("glUniformMatrix4fv"        ));
+	if (!OpenGLController->UniformMatrix4fv)         return false;
+
+	return true;
+}
+
 
 
 // >TOTHINK: returning WindowHandle via the function's return value rather than via a out parameter ? 
-static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle)
+internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle, OpenGLController* OpenGLController)
 {
 	if (!Window) return false;
 
@@ -246,8 +317,22 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 			{
 				if (wglMakeCurrent(_SacrificialDC, _SacrificialRC))
 				{
-					if (OpenGL::LoadOpenGLFunctions())
+					BOOL  (WINAPI* _wglChoosePixelFormatARB   )(HDC, const int*, const FLOAT*, UINT, int*, UINT*) = (BOOL  (WINAPI*)(HDC, const int*, const FLOAT*, UINT, int*, UINT*))wglGetProcAddress("wglChoosePixelFormatARB");
+					HGLRC (WINAPI* _wglCreateContextAttribsARB)(HDC, HGLRC, const int*                          ) = (HGLRC (WINAPI*)(HDC, HGLRC, const int*                          ))wglGetProcAddress("wglCreateContextAttribsARB");
+
+					if (_wglChoosePixelFormatARB)
 					{
+						OutputDebugString("------------ YEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
+					}
+					else
+					{
+						OutputDebugString("------------ :((((((((((((((((((");
+					}
+
+					//if (OpenGL::LoadOpenGLFunctions())
+					if (Win32LoadOpenGLFunctions(OpenGLController))
+					{
+						//OpenGL::LoadOpenGLFunctions();
 						RECT _R = {};
 						_R.top = 0;
 						_R.bottom = WINDOW_HEIGHT_DEFAULT;
@@ -300,7 +385,8 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 
 						int _PixelFormatID;
 						UINT _NumFormats;
-						if (OpenGL::ChoosePixelFormatARB(_DeviceContext, _PixelAttribs, nullptr, 1, &_PixelFormatID, &_NumFormats))
+						//if (OpenGL::ChoosePixelFormatARB(_DeviceContext, _PixelAttribs, nullptr, 1, &_PixelFormatID, &_NumFormats))
+						if (_wglChoosePixelFormatARB(_DeviceContext, _PixelAttribs, nullptr, 1, &_PixelFormatID, &_NumFormats))
 						{
 							if (_NumFormats == 0) return false;
 
@@ -317,7 +403,8 @@ static bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowH
 								0
 							};
 
-							HGLRC _RenderingContext = OpenGL::CreateContextAttribsARB(_DeviceContext, 0, _ContextAttribs);
+							//HGLRC _RenderingContext = OpenGL::CreateContextAttribsARB(_DeviceContext, 0, _ContextAttribs);
+							HGLRC _RenderingContext = _wglCreateContextAttribsARB(_DeviceContext, 0, _ContextAttribs);
 							if (_RenderingContext)
 							{
 								wglMakeCurrent(nullptr, nullptr);
@@ -487,13 +574,16 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 	if (RegisterClass(&_WindowClass))
 	{
 		HWND _WindowHandle = nullptr;
-		if (Win32_InitOpenGL(Instance, &_WindowClass, _WindowHandle))
+		OpenGLController _OpenGLController = {};
+
+		if (Win32_InitOpenGL(Instance, &_WindowClass, _WindowHandle, &_OpenGLController))
 		{
 			HDC _DC = GetDC(_WindowHandle);
 
 			GameMemory _GameMemory = {};
 			_GameMemory.PermanentStorageSize = MEGABYTES(64);
 			_GameMemory.PermanentStorage = 	VirtualAlloc(0, _GameMemory.PermanentStorageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			_GameMemory.OpenGLController = &_OpenGLController;
 
 			GameInputController  _GameInputs[2] = {};
 			GameInputController* _OldGameInput  = &_GameInputs[0];
