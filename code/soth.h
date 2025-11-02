@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 #if BUILD_ASSERT
 #define ASSERT(Expression) if (!(Expression)) {*(int*)0 = 0;}
 #else
@@ -35,6 +37,24 @@
 #define GL_FRAGMENT_SHADER                0x8B30
 #define GL_COMPILE_STATUS                 0x8B81
 #define GL_LINK_STATUS                    0x8B82
+
+
+typedef int8_t   int8   ;
+typedef int16_t  int16  ;
+typedef int32_t  int32  ;
+typedef int64_t  int64  ;
+typedef uint8_t  uint8  ;
+typedef uint16_t uint16 ;
+typedef uint32_t uint32 ;
+typedef uint64_t uint64 ;
+
+typedef float    real32 ;
+typedef double   real64 ;
+
+typedef int32    bool32 ;
+
+
+#include "utils.cpp"
 
 
 enum KeyState
@@ -152,4 +172,7 @@ struct GameInputController
 static ReadFileResult Win32_ReadFile(const char* Filename);
 static void DebugLogVector(const Vec3& V, real32 W = 1.0f, uint8 Precision = 3, const char* Extra = "");
 static void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision = 3);
+
+void UpdateGame(GameMemory* Memory, GameInputController* Input);
+void ExitGame();
 //static void DebugLogMatrix(const MatrixS4& M);
