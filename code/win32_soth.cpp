@@ -47,7 +47,7 @@ static BOOL Util_FreeFileMemory(void* Memory)
 
 // Utilitary functions
 //
-static ReadFileResult Win32_ReadFile(const char* Filename)
+DEBUG_PLATFORM_READ_FILE(DebugPlatformReadFile)
 {
 	ReadFileResult _Result = {};
 
@@ -147,7 +147,7 @@ static DebugFloatingNumber DebugConvertDoubleToInt(real64 F, uint8 Precision)
 	return _R;
 }
 
-static void DebugLogVector(const Vec3& V, real32 W, uint8 Precision, const char* Extra)
+DEBUG_PLATFORM_LOG_VECTOR(DebugPlatformLogVector)
 {
 	DebugFloatingNumber _X = DebugConvertFloatToInt(V.X, Precision);
 	DebugFloatingNumber _Y = DebugConvertFloatToInt(V.Y, Precision);
@@ -168,25 +168,59 @@ static void DebugLogVector(const Vec3& V, real32 W, uint8 Precision, const char*
 	//OutputDebugString(_tBuffer);
 }
 
-internal void DebugLogMatrixS4(const MatrixS4& M, uint8 Precision)
+DEBUG_PLATFORM_LOG_MATRIXS4(DebugPlatformLogMatrixS4)
 {
 	real32 _00 = M[0][0];
 	real32 _23 = M[2][3];
 
 	OutputDebugString("------- START ---- DEBUG MATRIX\n");
-	DebugLogVector(Vec3(M[0][0], M[0][1], M[0][2]), M[0][3], Precision, "\t");
-	DebugLogVector(Vec3(M[1][0], M[1][1], M[1][2]), M[1][3], Precision, "\t");
-	DebugLogVector(Vec3(M[2][0], M[2][1], M[2][2]), M[2][3], Precision, "\t");
-	DebugLogVector(Vec3(M[3][0], M[3][1], M[3][2]), M[3][3], Precision, "\t");
+	DebugPlatformLogVector(Vec3(M[0][0], M[0][1], M[0][2]), M[0][3], Precision, "\t");
+	DebugPlatformLogVector(Vec3(M[1][0], M[1][1], M[1][2]), M[1][3], Precision, "\t");
+	DebugPlatformLogVector(Vec3(M[2][0], M[2][1], M[2][2]), M[2][3], Precision, "\t");
+	DebugPlatformLogVector(Vec3(M[3][0], M[3][1], M[3][2]), M[3][3], Precision, "\t");
 	OutputDebugString("------- END ---- DEBUG MATRIX\n");
 }
 
-internal void DebugLogMessage(const char* Message)
+DEBUG_PLATFORM_LOG_MESSAGE(DebugPlatformLogMessage)
 {
 	OutputDebugString(Message);
 }
 
 
+struct Win32GameCodeFunctions
+{
+	HMODULE DLL;
+	game_update* Update;
+	game_exit* Exit;
+	bool32 IsValid;
+};
+
+internal Win32GameCodeFunctions Win32LoadGameCode()
+{
+	Win32GameCodeFunctions _GameCode = {};
+	_GameCode.DLL = LoadLibrary("soth.dll");
+	
+	if (_GameCode.DLL)
+	{
+		_GameCode.Update = (game_update*)GetProcAddress(_GameCode.DLL, "GameUpdate");
+		_GameCode.Exit   = (game_exit*  )GetProcAddress(_GameCode.DLL, "GameExit"  );
+
+		if (!_GameCode.Update)
+		{
+			OutputDebugString("NOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO\n\n");
+		}
+
+		_GameCode.IsValid = _GameCode.Update && _GameCode.Exit;
+	}
+
+	if (!_GameCode.IsValid)
+	{
+		_GameCode.Update = GameUpdateStub;
+		_GameCode.Exit = GameExitStub;
+	}
+
+	return _GameCode;
+}
 
 
 internal bool Win32LoadOpenGLFunctions(OpenGL* OpenGL)
@@ -563,6 +597,8 @@ static void Win32ProcessPendingMessages(GameInputController* InputController)
 
 int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, int CmdShow)
 {
+	Win32GameCodeFunctions _GameCodeFunctions = Win32LoadGameCode();
+
 	WNDCLASS _WindowClass      = {}                                 ;
 	_WindowClass.style         = CS_OWNDC | CS_HREDRAW | CS_VREDRAW ;
 	_WindowClass.lpfnWndProc   = Win32WindowCallback                ;
@@ -582,10 +618,14 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 		{
 			HDC _DC = GetDC(_WindowHandle);
 
-			GameMemory _GameMemory = {};
-			_GameMemory.PermanentStorageSize = MEGABYTES(64);
-			_GameMemory.PermanentStorage = 	VirtualAlloc(0, _GameMemory.PermanentStorageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-			_GameMemory.OpenGL = &_OpenGL;
+			GameMemory _GameMemory               = {};
+			_GameMemory.PermanentStorageSize     = MEGABYTES(64);
+			_GameMemory.PermanentStorage         = VirtualAlloc(0, _GameMemory.PermanentStorageSize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			_GameMemory.OpenGL                   = &_OpenGL;
+			_GameMemory.DebugPlatformReadFile    = DebugPlatformReadFile;
+			_GameMemory.DebugPlatformLogVector   = DebugPlatformLogVector;
+			_GameMemory.DebugPlatformLogMatrixS4 = DebugPlatformLogMatrixS4;
+			_GameMemory.DebugPlatformLogMessage  = DebugPlatformLogMessage;
 
 			GameInputController  _GameInputs[2] = {};
 			GameInputController* _OldGameInput  = &_GameInputs[0];
@@ -603,7 +643,8 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 				glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 				glClear(GL_COLOR_BUFFER_BIT);
 
-				UpdateGame(&_GameMemory, _NewGameInput);
+				//GameUpdate(&_GameMemory, _NewGameInput);
+				_GameCodeFunctions.Update(&_GameMemory, _NewGameInput);
 
 				SwapBuffers(_DC);
 
@@ -623,6 +664,7 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 		// LOGGING
 	}
 
-	ExitGame();
+	//GameExit();
+	_GameCodeFunctions.Exit();
 	return (0);
 }

@@ -51,6 +51,8 @@
 
 #define GL_COLOR_BUFFER_BIT               0x00004000
 
+#define GL_VIEWPORT                       0x0BA2
+
 
 typedef unsigned int         GLenum;
 typedef unsigned char        GLboolean;
@@ -69,6 +71,21 @@ typedef double               GLclampd;
 typedef void                 GLvoid;
 
 typedef signed long long int GLsizeiptr;
+
+
+#ifndef APIENTRY 
+#define APIENTRY
+#endif
+
+#ifdef _WIN32
+#define GLAPI extern "C" __declspec(dllimport)
+#else
+#define GLAPI extern "C"
+#endif
+
+
+GLAPI void APIENTRY glDrawArrays(GLenum mode, GLint first, GLsizei count);
+GLAPI void APIENTRY glGetIntegerv(GLenum pname, GLint* params);
 
 
 typedef void   (APIENTRY* GL_GEN_VERTEX_ARRAYS          ) (GLsizei n, GLuint* arrays);
@@ -125,5 +142,6 @@ struct OpenGL
 	GL_UNIFORM_MATRIX_4FV          UniformMatrix4fv        ;
 	GL_DRAW_ARRAYS                 DrawArrays              ;
 };
+
 
 #endif

@@ -5,8 +5,8 @@ set CommonLinkerFlags=user32.lib gdi32.lib opengl32.lib
 
 IF NOT EXIST ..\build mkdir ..\build
 pushd ..\build
-::cl %CommonCompilerFlags% ..\code\soth.cpp -Fmsoth.map %CommonLinkerFlags%
-cl %CommonCompilerFlags% ..\code\win32_soth.cpp -Fmwin32_soth.map %CommonLinkerFlags%
+cl %CommonCompilerFlags% ..\code\soth.cpp -Fmsoth.map /LD /DLL /link opengl32.lib /EXPORT:GameUpdate /EXPORT:GameExit
+cl %CommonCompilerFlags% ..\code\win32_soth.cpp -Fmwin32_soth.map /link %CommonLinkerFlags%
 popd
 
 :: -W4 --> warning level 4 (from the compiler). Can also write -Wall --> actives all possible warnings (but then we get flooded)
