@@ -1,8 +1,12 @@
 @echo off
 
+set CommonCompilerFlags=-MT -GR- -Gm- -EHa- -Oi -WX -W4 -wd4201 -wd4100 -wd4505 -wd4189 -DBUILD_ASSERT=1 -FC -Z7
+set CommonLinkerFlags=user32.lib gdi32.lib opengl32.lib
+
 IF NOT EXIST ..\build mkdir ..\build
 pushd ..\build
-cl -MT -GR- -Gm- -EHa- -Oi -WX -W4 -wd4201 -wd4100 -wd4505 -wd4189 -DBUILD_ASSERT=1 -FC -Z7 -Fmwin32_soth.map ..\code\win32_soth.cpp user32.lib gdi32.lib opengl32.lib
+::cl %CommonCompilerFlags% ..\code\soth.cpp -Fmsoth.map %CommonLinkerFlags%
+cl %CommonCompilerFlags% ..\code\win32_soth.cpp -Fmwin32_soth.map %CommonLinkerFlags%
 popd
 
 :: -W4 --> warning level 4 (from the compiler). Can also write -Wall --> actives all possible warnings (but then we get flooded)

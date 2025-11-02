@@ -1,6 +1,7 @@
 #include "win32_soth.h"
 #include <windows.h>
 #include <gl/gl.h>
+#include "win32_opengl.h"
 
 
 /* TODO
@@ -256,12 +257,19 @@ internal bool Win32LoadOpenGLFunctions(OpenGL* OpenGL)
 	OpenGL->UniformMatrix4fv              = (GL_UNIFORM_MATRIX_4FV         )(wglGetProcAddress("glUniformMatrix4fv"        ));
 	if (!OpenGL->UniformMatrix4fv)         return false;
 
+	//OpenGL->DrawArrays = (GL_DRAW_ARRAYS)(wglGetProcAddress("glDrawArrays"));
+	//if (!OpenGL->DrawArrays)
+	//{
+	//	OutputDebugString("WTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTF\n");
+	//	return false;
+	//}
 	return true;
 }
 
 
 
 // >TOTHINK: returning WindowHandle via the function's return value rather than via a out parameter ? 
+//internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle, OpenGL* OpenGL)
 internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle, OpenGL* OpenGL)
 {
 	if (!Window) return false;
@@ -304,17 +312,22 @@ internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& Windo
 			{
 				if (wglMakeCurrent(_SacrificialDC, _SacrificialRC))
 				{
-					BOOL  (WINAPI* _wglChoosePixelFormatARB   )(HDC, const int*, const FLOAT*, UINT, int*, UINT*) = (BOOL  (WINAPI*)(HDC, const int*, const FLOAT*, UINT, int*, UINT*))wglGetProcAddress("wglChoosePixelFormatARB");
-					HGLRC (WINAPI* _wglCreateContextAttribsARB)(HDC, HGLRC, const int*                          ) = (HGLRC (WINAPI*)(HDC, HGLRC, const int*                          ))wglGetProcAddress("wglCreateContextAttribsARB");
+					OpenGL_Win32 _openGLWin32 = {};
+					_openGLWin32.WglChoosePixelFormatARB = (BOOL(WINAPI*)(HDC, const int*, const FLOAT*, UINT, int*, UINT*))wglGetProcAddress("wglChoosePixelFormatARB");
+					ASSERT(_openGLWin32.WglChoosePixelFormatARB);
+					_openGLWin32.WglCreateContextAttribsARB = (HGLRC(WINAPI*)(HDC, HGLRC, const int*))wglGetProcAddress("wglCreateContextAttribsARB");
+					ASSERT(_openGLWin32.WglCreateContextAttribsARB);
+					//BOOL  (WINAPI* _wglChoosePixelFormatARB   )(HDC, const int*, const FLOAT*, UINT, int*, UINT*) = (BOOL  (WINAPI*)(HDC, const int*, const FLOAT*, UINT, int*, UINT*))wglGetProcAddress("wglChoosePixelFormatARB");
+					//HGLRC (WINAPI* _wglCreateContextAttribsARB)(HDC, HGLRC, const int*                          ) = (HGLRC (WINAPI*)(HDC, HGLRC, const int*                          ))wglGetProcAddress("wglCreateContextAttribsARB");
 
-					if (_wglChoosePixelFormatARB)
-					{
-						OutputDebugString("------------ YEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
-					}
-					else
-					{
-						OutputDebugString("------------ :((((((((((((((((((");
-					}
+					//if (_wglChoosePixelFormatARB)
+					//{
+					//	OutputDebugString("------------ YEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
+					//}
+					//else
+					//{
+					//	OutputDebugString("------------ :((((((((((((((((((");
+					//}
 
 					//if (OpenGL::LoadOpenGLFunctions())
 					if (Win32LoadOpenGLFunctions(OpenGL))
@@ -373,7 +386,8 @@ internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& Windo
 						int _PixelFormatID;
 						UINT _NumFormats;
 						//if (OpenGL::ChoosePixelFormatARB(_DeviceContext, _PixelAttribs, nullptr, 1, &_PixelFormatID, &_NumFormats))
-						if (_wglChoosePixelFormatARB(_DeviceContext, _PixelAttribs, nullptr, 1, &_PixelFormatID, &_NumFormats))
+						//if (_wglChoosePixelFormatARB(_DeviceContext, _PixelAttribs, nullptr, 1, &_PixelFormatID, &_NumFormats))
+						if (_openGLWin32.WglChoosePixelFormatARB(_DeviceContext, _PixelAttribs, nullptr, 1, &_PixelFormatID, &_NumFormats))
 						{
 							if (_NumFormats == 0) return false;
 
@@ -391,7 +405,8 @@ internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& Windo
 							};
 
 							//HGLRC _RenderingContext = OpenGL::CreateContextAttribsARB(_DeviceContext, 0, _ContextAttribs);
-							HGLRC _RenderingContext = _wglCreateContextAttribsARB(_DeviceContext, 0, _ContextAttribs);
+							//HGLRC _RenderingContext = _wglCreateContextAttribsARB(_DeviceContext, 0, _ContextAttribs);
+							HGLRC _RenderingContext = _openGLWin32.WglCreateContextAttribsARB(_DeviceContext, 0, _ContextAttribs);
 							if (_RenderingContext)
 							{
 								wglMakeCurrent(nullptr, nullptr);

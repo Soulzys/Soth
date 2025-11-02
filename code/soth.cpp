@@ -41,7 +41,6 @@ void LoadShaders(GameState* State, OpenGL* OpenGL)
 	unsigned int _VBO;
 	unsigned int _VAO;
 
-	//OpenGL::GenVertexArrays(1, &_VAO);
 	OpenGL->GenVertexArrays(1, &_VAO);
 	OpenGL->GenBuffers(1, &_VBO);
 	OpenGL->BindVertexArray(_VAO);
