@@ -59,6 +59,13 @@ struct ReadFileResult
 //
 
 
+struct GameScreenSize
+{
+	int Width;
+	int Height;
+};
+
+
 struct GameState
 {
 	uint16 VBO           ;
@@ -125,7 +132,7 @@ struct GameInputController
 
 
 // Game layer functions : declared and defined here, called in win32_soth.cpp
-#define GAME_UPDATE(name) void name(GameMemory* Memory, GameInputController* Input)
+#define GAME_UPDATE(name) void name(GameMemory* Memory, GameInputController* Input, GameScreenSize* ScreenSize)
 typedef GAME_UPDATE(game_update);
 GAME_UPDATE(GameUpdateStub) {}
 void GameUpdate(GameMemory* Memory, GameInputController* Input);

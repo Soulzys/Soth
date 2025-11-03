@@ -86,6 +86,7 @@ typedef signed long long int GLsizeiptr;
 
 GLAPI void APIENTRY glDrawArrays(GLenum mode, GLint first, GLsizei count);
 GLAPI void APIENTRY glGetIntegerv(GLenum pname, GLint* params);
+GLAPI void APIENTRY glViewport(GLint x, GLint y, GLsizei width, GLsizei height);
 
 
 typedef void   (APIENTRY* GL_GEN_VERTEX_ARRAYS          ) (GLsizei n, GLuint* arrays);

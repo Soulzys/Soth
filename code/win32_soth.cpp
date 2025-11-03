@@ -304,7 +304,7 @@ internal bool Win32LoadOpenGLFunctions(OpenGL* OpenGL)
 
 // >TOTHINK: returning WindowHandle via the function's return value rather than via a out parameter ? 
 //internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle, OpenGL* OpenGL)
-internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle, OpenGL* OpenGL)
+internal bool Win32InitWindow(HINSTANCE Instance, WNDCLASS* Window, HWND& WindowHandle, OpenGL* OpenGL, GameScreenSize* ScreenSize)
 {
 	if (!Window) return false;
 
@@ -351,19 +351,7 @@ internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& Windo
 					ASSERT(_openGLWin32.WglChoosePixelFormatARB);
 					_openGLWin32.WglCreateContextAttribsARB = (HGLRC(WINAPI*)(HDC, HGLRC, const int*))wglGetProcAddress("wglCreateContextAttribsARB");
 					ASSERT(_openGLWin32.WglCreateContextAttribsARB);
-					//BOOL  (WINAPI* _wglChoosePixelFormatARB   )(HDC, const int*, const FLOAT*, UINT, int*, UINT*) = (BOOL  (WINAPI*)(HDC, const int*, const FLOAT*, UINT, int*, UINT*))wglGetProcAddress("wglChoosePixelFormatARB");
-					//HGLRC (WINAPI* _wglCreateContextAttribsARB)(HDC, HGLRC, const int*                          ) = (HGLRC (WINAPI*)(HDC, HGLRC, const int*                          ))wglGetProcAddress("wglCreateContextAttribsARB");
 
-					//if (_wglChoosePixelFormatARB)
-					//{
-					//	OutputDebugString("------------ YEEEEEEEEEEEEEEEEEEEEEEEEEEEEES");
-					//}
-					//else
-					//{
-					//	OutputDebugString("------------ :((((((((((((((((((");
-					//}
-
-					//if (OpenGL::LoadOpenGLFunctions())
 					if (Win32LoadOpenGLFunctions(OpenGL))
 					{
 						//OpenGL::LoadOpenGLFunctions();
@@ -392,7 +380,10 @@ internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& Windo
 							0,
 							0,
 							Instance,
-							0
+							// >NOTE: We can pass a struct here that we can then retrieve from the main Windows callback ! 
+							//        It's pretty cool to be able to do that, but I think I should come back to using global variables instead.
+							//        Seems like a lot of work for Windows just go avoid global variables...
+							ScreenSize 
 						);
 						HDC _DeviceContext = GetDC(WindowHandle);
 
@@ -507,37 +498,43 @@ internal bool Win32_InitOpenGL(HINSTANCE Instance, WNDCLASS* Window, HWND& Windo
 LRESULT CALLBACK Win32WindowCallback(HWND Window, UINT Message, WPARAM WParam, LPARAM LParam)
 {
 	LRESULT _Result = 0;
+	GameScreenSize* _ScreenSize = nullptr;
+
+	// Runs only once very early when the windows is created
+	if (Message == WM_NCCREATE)
+	{
+		CREATESTRUCT* _CreateStruct = (CREATESTRUCT*)LParam;
+		_ScreenSize = (GameScreenSize*)_CreateStruct->lpCreateParams;
+		SetWindowLongPtr(Window, GWLP_USERDATA, (LONG_PTR)_ScreenSize);
+	}
+	else
+	{
+		_ScreenSize = (GameScreenSize*)GetWindowLongPtr(Window, GWLP_USERDATA);
+	}
 
 	switch (Message)
 	{
+		//case WM_SIZE:
+		//{
+		//	g_ClientSize.Width  = LOWORD(LParam);
+		//	g_ClientSize.Height = HIWORD(LParam);
+		//	glViewport(0, 0, g_ClientSize.Width, g_ClientSize.Height);
+		//	OutputDebugString("--------- I was resized !!\n");
+		//} break;
+
 		case WM_SIZE:
 		{
-			g_ClientSize.Width  = LOWORD(LParam);
-			g_ClientSize.Height = HIWORD(LParam);
-			glViewport(0, 0, g_ClientSize.Width, g_ClientSize.Height);
-			OutputDebugString("--------- I was resized !!\n");
+			if (_ScreenSize)
+			{
+				_ScreenSize->Width = LOWORD(LParam);
+				_ScreenSize->Height = HIWORD(LParam);
+			}
 		} break;
 
 		case WM_CLOSE: 
 		case WM_DESTROY:
 		{
 			g_Running = false;
-		} break;
-
-		case WM_KEYDOWN:
-		{
-			uint32 _VKCode = (uint32)WParam;
-
-			//if (_VKCode == VK_ESCAPE)
-			//{
-			//	g_Running = false;
-			//}
-
-			//if (_VKCode == 'D')
-			//{
-			//	OutputDebugString("D !\n");
-			//}
-
 		} break;
 
 		default:
@@ -613,8 +610,9 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 	{
 		HWND _WindowHandle = nullptr;
 		OpenGL _OpenGL = {};
+		GameScreenSize _ScreenSize = {};
 
-		if (Win32_InitOpenGL(Instance, &_WindowClass, _WindowHandle, &_OpenGL))
+		if (Win32InitWindow(Instance, &_WindowClass, _WindowHandle, &_OpenGL, &_ScreenSize))
 		{
 			HDC _DC = GetDC(_WindowHandle);
 
@@ -631,6 +629,7 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 			GameInputController* _OldGameInput  = &_GameInputs[0];
 			GameInputController* _NewGameInput  = &_GameInputs[1];
 
+
 			g_Running = true;
 
 			while (g_Running)
@@ -644,7 +643,7 @@ int CALLBACK WinMain(HINSTANCE Instance, HINSTANCE PrevInstance, LPSTR CmdLine, 
 				glClear(GL_COLOR_BUFFER_BIT);
 
 				//GameUpdate(&_GameMemory, _NewGameInput);
-				_GameCodeFunctions.Update(&_GameMemory, _NewGameInput);
+				_GameCodeFunctions.Update(&_GameMemory, _NewGameInput, &_ScreenSize);
 
 				SwapBuffers(_DC);
 

@@ -1,5 +1,4 @@
 #include "soth.h"
-//#include "shader.h"
 #include "shader.cpp"
 #include <math.h>
 
@@ -21,9 +20,7 @@ void LoadShaders(GameState* State, GameMemory* Memory)
 	const char* _VertexShaderPath = "R:\\resources\\shader.vs";
 	const char* _FragmentShaderPath = "R:\\resources\\shader.fs";
 
-	//ReadFileResult _VertexShaderFile = Win32_ReadFile(_VertexShaderPath);
 	ReadFileResult _VertexShaderFile = Memory->DebugPlatformReadFile(_VertexShaderPath);
-	//ReadFileResult _FragmentShaderFile = Win32_ReadFile(_FragmentShaderPath);
 	ReadFileResult _FragmentShaderFile = Memory->DebugPlatformReadFile(_FragmentShaderPath);
 
 	unsigned int _shaderProgram;
@@ -101,6 +98,7 @@ GAME_UPDATE(GameUpdate)
 		_GameState->PlayerPos.MoveY(3.f);
 	}
 
+	// >TODO: move this code elsewhere. Make it more reliable too.
 	GLint _Viewport[4];
 	glGetIntegerv(GL_VIEWPORT, _Viewport);
 	int _Width = _Viewport[2];
@@ -109,7 +107,7 @@ GAME_UPDATE(GameUpdate)
 	MatrixS4 _Model(1.0f);
 	_Model.Scale(100.0f);
 	//MatrixS4 _Projection = GetOrthographicProjectionMatrix(-(real32)g_ClientSize.Width/2, (real32)g_ClientSize.Width/2, -(real32)g_ClientSize.Height/2, (real32)g_ClientSize.Height/2, 0.0f, 100.0f);
-	MatrixS4 _Projection = GetOrthographicProjectionMatrix(-(real32)_Width/2, (real32)_Width/2, -(real32)_Height/2, (real32)_Height/2, 0.0f, 100.0f);
+	MatrixS4 _Projection = GetOrthographicProjectionMatrix(-(real32)ScreenSize->Width/2, (real32)ScreenSize->Width/2, -(real32)ScreenSize->Height/2, (real32)ScreenSize->Height/2, 0.0f, 100.0f);
 	
 
 	Memory->OpenGL->UseProgram(_GameState->ShaderProgram);
@@ -118,6 +116,7 @@ GAME_UPDATE(GameUpdate)
 	Shader::SetUniform_MatrixS4(_GameState->ShaderProgram, "uni_model"      , _Model     /*.Transpose()*/.GetPointer(), Memory->OpenGL);
 	Memory->OpenGL->BindVertexArray(_GameState->VAO);
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glViewport(0, 0, ScreenSize->Width, ScreenSize->Height);
 }
 
 GAME_EXIT(GameExit)
